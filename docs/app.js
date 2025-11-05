@@ -35,7 +35,10 @@ const apiUrl = (path = "") =>
     `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(BRANCH)}`;
 
 const rawUrl = (path) =>
-    `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${path.split("/").map(encodeURIComponent).join("/")}`;
+    `https://cdn.jsdelivr.net/gh/${OWNER}/${REPO}@${BRANCH}/${path
+        .split("/")
+        .map(encodeURIComponent)
+        .join("/")}`;
 
 const isDir  = (n) => n.type === "dir";
 const isFile = (n) => n.type === "file";
@@ -243,11 +246,15 @@ async function loadNote(path) {
         // PDF -> iframe
         if (e === ".pdf") {
             const src = rawUrl(path);
+            const viewerUrl = `${src}#toolbar=1&view=FitH`; // hint pour activer la barre d’outils du viewer natif
             content.innerHTML = `
-        <h2>${escapeHtml(path.split("/").pop())}</h2>
-        <iframe src="${src}" style="width:100%;height:80vh;border:1px solid #232329;border-radius:.5rem;"></iframe>
-        <p><a href="${src}" target="_blank" rel="noopener">Ouvrir dans un nouvel onglet ↗</a></p>
-      `;
+                <h2>${escapeHtml(path.split("/").pop())}</h2>
+                <iframe
+                  src="${viewerUrl}"
+                  style="width:100%;height:80vh;border:1px solid #232329;border-radius:.5rem;"
+                ></iframe>
+                <p><a href="${src}" target="_blank" rel="noopener">Ouvrir dans un nouvel onglet ↗</a></p>
+              `;
             markActive(path);
             return;
         }
