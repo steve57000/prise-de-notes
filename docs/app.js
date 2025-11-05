@@ -104,6 +104,13 @@ const ALLOWED_EXT = Array.from(new Set(CONFIG.allowedExt));
 const $repoLink = document.getElementById("repoLink");
 if ($repoLink) $repoLink.href = `https://github.com/${OWNER}/${REPO}`;
 
+const $menuToggle = document.getElementById("menuToggle");
+const $themeToggle = document.getElementById("themeToggle");
+const $overlay = document.getElementById("overlay");
+
+const MOBILE_QUERY = window.matchMedia("(max-width: 768px)");
+const THEME_STORAGE_KEY = "notes-viewer-theme";
+
 const apiUrl = (path = "") =>
     `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(BRANCH)}`;
 
@@ -129,6 +136,141 @@ function escapeHtml(s) {
 }
 function escapeMd(s) {
     return s.replace(/([\\`*_\[\]{}()#+\-.!|])/g, "\\$1");
+}
+
+// ======================
+//  UI ENHANCEMENTS (theme & responsive sidebar)
+// ======================
+function readStoredTheme() {
+    try {
+        const value = localStorage.getItem(THEME_STORAGE_KEY);
+        return value === "light" || value === "dark" ? value : null;
+    } catch {
+        return null;
+    }
+}
+
+function storeTheme(theme) {
+    try {
+        localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+        // stockage indisponible (mode privé, etc.) : ignorer
+    }
+}
+
+function updateThemeToggle(theme) {
+    if (!$themeToggle) return;
+    const next = theme === "dark" ? "clair" : "sombre";
+    const icon = theme === "dark" ? "☀️" : "🌙";
+    $themeToggle.textContent = icon;
+    $themeToggle.setAttribute("aria-label", `Activer le thème ${next}`);
+    $themeToggle.setAttribute("title", `Basculer vers le thème ${next}`);
+}
+
+function applyTheme(theme, { persist = false } = {}) {
+    const body = document.body;
+    if (!body) return;
+    body.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    updateThemeToggle(theme);
+    if (persist) {
+        storeTheme(theme);
+    }
+}
+
+function detectInitialTheme() {
+    const stored = readStoredTheme();
+    if (stored) return stored;
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+}
+
+function setupThemeControls() {
+    const initial = detectInitialTheme();
+    applyTheme(initial);
+
+    if ($themeToggle) {
+        $themeToggle.addEventListener("click", () => {
+            const current = document.body?.dataset.theme === "dark" ? "dark" : "light";
+            const next = current === "dark" ? "light" : "dark";
+            applyTheme(next, { persist: true });
+        });
+    }
+
+    const prefersDark = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+    if (prefersDark) {
+        const handleChange = (event) => {
+            if (readStoredTheme()) return;
+            applyTheme(event.matches ? "dark" : "light");
+        };
+        if (prefersDark.addEventListener) {
+            prefersDark.addEventListener("change", handleChange);
+        } else if (prefersDark.addListener) {
+            prefersDark.addListener(handleChange);
+        }
+    }
+}
+
+function isSidebarOpen() {
+    return document.body?.classList.contains("sidebar-open");
+}
+
+function setSidebarOpen(open) {
+    const body = document.body;
+    if (!body) return;
+    body.classList.toggle("sidebar-open", open);
+    if ($overlay) {
+        $overlay.hidden = !open;
+    }
+    if ($menuToggle) {
+        $menuToggle.setAttribute("aria-expanded", open ? "true" : "false");
+        $menuToggle.setAttribute("aria-label", open ? "Fermer la navigation" : "Ouvrir la navigation");
+    }
+}
+
+function closeSidebar() {
+    setSidebarOpen(false);
+}
+
+function closeSidebarOnMobile() {
+    if (MOBILE_QUERY.matches) {
+        closeSidebar();
+    }
+}
+
+function toggleSidebar() {
+    setSidebarOpen(!isSidebarOpen());
+}
+
+function setupSidebarControls() {
+    if ($menuToggle) {
+        $menuToggle.setAttribute("aria-expanded", "false");
+        $menuToggle.addEventListener("click", () => {
+            toggleSidebar();
+        });
+    }
+
+    if ($overlay) {
+        $overlay.addEventListener("click", closeSidebar);
+    }
+
+    const handleQueryChange = (event) => {
+        if (!event.matches) {
+            closeSidebar();
+        }
+    };
+    if (MOBILE_QUERY.addEventListener) {
+        MOBILE_QUERY.addEventListener("change", handleQueryChange);
+    } else if (MOBILE_QUERY.addListener) {
+        MOBILE_QUERY.addListener(handleQueryChange);
+    }
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && isSidebarOpen()) {
+            closeSidebar();
+        }
+    });
 }
 
 function iconFor(name) {
@@ -413,6 +555,12 @@ function makeFileNode(name, fullPath) {
 }
 
 document.getElementById("sidebar")?.addEventListener("click", async (e) => {
+    const link = e.target.closest("a");
+    if (link) {
+        closeSidebarOnMobile();
+        return;
+    }
+
     const label = e.target.closest(".folder");
     if (!label) return;
 
@@ -529,7 +677,7 @@ async function loadNote(path, anchor = "") {
                 <h2>${escapeHtml(path.split("/").pop())}</h2>
                 <iframe
                   src="${viewerUrl}"
-                  style="width:100%;height:80vh;border:1px solid #232329;border-radius:.5rem;"
+                  style="width:100%;height:80vh;border:1px solid var(--border);border-radius:.5rem;background:var(--panel);"
                 ></iframe>
                 <p><a href="${src}" target="_blank" rel="noopener">Ouvrir dans un nouvel onglet ↗</a></p>
               `;
@@ -542,7 +690,7 @@ async function loadNote(path, anchor = "") {
             const src = rawUrl(path);
             content.innerHTML = `
         <h2>${escapeHtml(path.split("/").pop())}</h2>
-        <img src="${src}" alt="${escapeHtml(path)}" style="max-width:100%;height:auto;border:1px solid #232329;border-radius:.5rem;" />
+        <img src="${src}" alt="${escapeHtml(path)}" style="max-width:100%;height:auto;border:1px solid var(--border);border-radius:.5rem;background:var(--panel);" />
         <p><a href="${src}" target="_blank" rel="noopener">Voir l’image originale ↗</a></p>
       `;
             markActive(path);
@@ -608,11 +756,17 @@ function router() {
         const anchorIndex = pathWithAnchor.indexOf("#");
         const path = anchorIndex >= 0 ? pathWithAnchor.slice(0, anchorIndex) : pathWithAnchor;
         const anchor = anchorIndex >= 0 ? pathWithAnchor.slice(anchorIndex + 1) : "";
-        if (path) loadNote(path, anchor);
+        if (path) {
+            closeSidebarOnMobile();
+            loadNote(path, anchor);
+        }
     }
 }
 
 window.addEventListener("hashchange", router);
+
+setupThemeControls();
+setupSidebarControls();
 
 
 // ======================
