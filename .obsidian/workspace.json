@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "GitHub/Commande git M.Gamory.md",
+                "file": "commandes_diskpart.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Commande git M.Gamory"
+              "title": "commandes_diskpart"
             }
           }
         ]
@@ -166,6 +166,10 @@
   },
   "active": "58d09972218491a6",
   "lastOpenFiles": [
+    "manipulation-des-fichiers.md",
+    "commandes_diskpart.md",
+    "optimisation_hdd.md",
+    "GitHub/Commande git M.Gamory.md",
     "Cours/Java/FlorentGouget/Développement Logiciel Java - 2.pdf",
     "WordPress/Wordpress.md",
     "WordPress",
@@ -195,13 +199,9 @@
     "JAVA spring/FranckBansept/Spring 3.pdf",
     "JAVA spring/JAVA SPRING.md",
     "JAVA spring/FranckBansept",
-    "JAVA spring",
     "Java/Java_Guide_Complet.md",
     "Java/JAVA suite.md",
     "HTML/Introduction-HTML.md",
-    "HTML/Projet-Pratique.md",
-    "HTML/Cours_HTML.md",
-    "GitHub/Installation.md",
     "Sans titre 1.canvas",
     "Sans titre.canvas",
     "Assets/http.png",
