@@ -134,6 +134,22 @@ const hasAllowedExt = (name) => ALLOWED_EXT.includes(extOf(name));
 
 const byAlpha = (a, b) => a.name.localeCompare(b.name, "fr", { numeric: true });
 
+function normalizeForSearch(value) {
+    if (!value) return "";
+    return value
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+}
+
+function setSearchMeta(li, ...tokens) {
+    li.dataset.search = normalizeForSearch(tokens.filter(Boolean).join(" "));
+}
+
+let preloadAllFoldersPromise = null;
+let allFoldersLoaded = false;
+let filterSequence = 0;
+
 function escapeHtml(s) {
     return s.replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
 }
@@ -563,9 +579,7 @@ async function buildMenu() {
     // Recherche
     const search = document.getElementById("search");
     if (search) {
-        search.addEventListener("input", () =>
-            filterMenu(search.value.trim().toLowerCase())
-        );
+        search.addEventListener("input", () => filterMenu(search.value));
     }
 }
 
@@ -584,6 +598,9 @@ function makeFolderNode(name, fullPath) {
     label.setAttribute("aria-expanded", "false");
 
     li.appendChild(label);
+    li.dataset.type = "folder";
+    setSearchMeta(li, name, fullPath);
+
     return li;
 }
 
@@ -592,6 +609,8 @@ function makeFileNode(name, fullPath) {
     const href = `#/${encodeURIComponent(fullPath)}`;
     const title = name.replace(/\.md$/i, "");
     li.innerHTML = `<a href="${href}">${iconFor(name)} ${escapeHtml(title)}</a>`;
+    li.dataset.type = "file";
+    setSearchMeta(li, title, fullPath, name);
     return li;
 }
 
@@ -605,28 +624,56 @@ document.getElementById("sidebar")?.addEventListener("click", async (e) => {
     const label = e.target.closest(".folder");
     if (!label) return;
 
+    const caret = label.querySelector(".caret");
+    const parent = label.parentElement;
+    if (!parent) return;
+
     const expanded = label.getAttribute("aria-expanded") === "true";
-    const caret    = label.querySelector(".caret");
+    const children = parent.querySelector(":scope > .children");
 
     if (expanded) {
-        // Fermer : supprimer les enfants
-        label.parentElement.querySelector(".children")?.remove();
+        if (children) children.hidden = true;
         label.setAttribute("aria-expanded", "false");
         if (caret) caret.textContent = "▶";
-    } else {
-        await buildFolder(label.parentElement, label.dataset.path);
-        label.setAttribute("aria-expanded", "true");
-        if (caret) caret.textContent = "▼";
+        delete label.dataset.searchOpen;
+        return;
     }
+
+    await buildFolder(parent, label.dataset.path);
+    const updatedChildren = parent.querySelector(":scope > .children");
+    if (updatedChildren) updatedChildren.hidden = false;
+    label.setAttribute("aria-expanded", "true");
+    if (caret) caret.textContent = "▼";
+    delete label.dataset.searchOpen;
 });
 
 async function buildFolder(parentEl, path) {
-    const entries = await readDir(path);
-    if (!entries.length) return;
+    if (!parentEl || parentEl.dataset.type !== "folder") return;
 
-    const ul = document.createElement("ul");
-    ul.className = "tree children";
-    parentEl.appendChild(ul);
+    if (parentEl.dataset.loaded === "true") {
+        return;
+    }
+
+    const entries = await readDir(path);
+    let ul = parentEl.querySelector(":scope > .children");
+    if (!entries.length) {
+        if (!ul) {
+            ul = document.createElement("ul");
+            ul.className = "tree children";
+            ul.hidden = true;
+            parentEl.appendChild(ul);
+        }
+        parentEl.dataset.loaded = "true";
+        return;
+    }
+
+    if (!ul) {
+        ul = document.createElement("ul");
+        ul.className = "tree children";
+        parentEl.appendChild(ul);
+    } else {
+        ul.innerHTML = "";
+    }
 
     for (const d of entries.filter(isDir)) {
         ul.appendChild(makeFolderNode(d.name, d.path));
@@ -634,14 +681,119 @@ async function buildFolder(parentEl, path) {
     for (const f of entries.filter(isFile)) {
         ul.appendChild(makeFileNode(f.name, f.path));
     }
+
+    ul.hidden = false;
+    parentEl.dataset.loaded = "true";
 }
 
-function filterMenu(q) {
-    const items = document.querySelectorAll("#fileList a");
-    items.forEach((a) => {
-        const visible = !q || a.textContent.toLowerCase().includes(q);
-        a.parentElement.style.display = visible ? "" : "none";
+async function filterMenu(q) {
+    const list = document.getElementById("fileList");
+    if (!list) return;
+
+    const query = normalizeForSearch((q || "").trim());
+    filterSequence += 1;
+    const token = filterSequence;
+
+    if (!query) {
+        resetMenuFilter(list);
+        return;
+    }
+
+    await ensureAllFoldersLoaded();
+    if (token !== filterSequence) return;
+
+    Array.from(list.children).forEach((li) => applyMenuFilter(li, query));
+}
+
+function resetMenuFilter(list) {
+    list.querySelectorAll("li").forEach((li) => {
+        li.style.display = "";
     });
+    list.querySelectorAll(".folder[data-search-open='true']").forEach((label) => {
+        const parent = label.parentElement;
+        const caret = label.querySelector(".caret");
+        const children = parent?.querySelector(":scope > .children");
+        if (children) {
+            children.hidden = true;
+        }
+        label.setAttribute("aria-expanded", "false");
+        if (caret) caret.textContent = "▶";
+        delete label.dataset.searchOpen;
+    });
+}
+
+function applyMenuFilter(li, query) {
+    const searchable = li.dataset.search || "";
+    const selfMatch = searchable.includes(query);
+
+    const childrenContainer = li.querySelector(":scope > .children");
+    let childMatch = false;
+    if (childrenContainer) {
+        childMatch = Array.from(childrenContainer.children)
+            .map((child) => applyMenuFilter(child, query))
+            .some(Boolean);
+    }
+
+    const match = selfMatch || childMatch;
+    li.style.display = match ? "" : "none";
+
+    if (childrenContainer) {
+        const label = li.querySelector(":scope > .folder");
+        const caret = label?.querySelector(".caret");
+        if (childMatch) {
+            const wasHidden = childrenContainer.hidden;
+            childrenContainer.hidden = false;
+            label?.setAttribute("aria-expanded", "true");
+            if (caret) caret.textContent = "▼";
+            if (wasHidden) {
+                label.dataset.searchOpen = "true";
+            }
+        } else if (label?.dataset.searchOpen === "true") {
+            childrenContainer.hidden = true;
+            label.setAttribute("aria-expanded", "false");
+            if (caret) caret.textContent = "▶";
+            delete label.dataset.searchOpen;
+        }
+    }
+
+    return match;
+}
+
+async function ensureAllFoldersLoaded() {
+    if (allFoldersLoaded) return;
+    if (preloadAllFoldersPromise) {
+        await preloadAllFoldersPromise;
+        return;
+    }
+
+    const list = document.getElementById("fileList");
+    if (!list) return;
+
+    preloadAllFoldersPromise = (async () => {
+        const queue = Array.from(list.children).filter((li) => li.dataset.type === "folder");
+        while (queue.length) {
+            const folder = queue.shift();
+            const label = folder?.querySelector(":scope > .folder");
+            if (!folder || !label) continue;
+            await buildFolder(folder, label.dataset.path);
+            const children = folder.querySelector(":scope > .children");
+            if (!children) continue;
+            Array.from(children.children).forEach((child) => {
+                if (child.dataset.type === "folder") {
+                    queue.push(child);
+                }
+            });
+        }
+    })();
+
+    try {
+        await preloadAllFoldersPromise;
+        allFoldersLoaded = true;
+    } catch {
+        allFoldersLoaded = false;
+    } finally {
+        preloadAllFoldersPromise = null;
+    }
 }
 
 
