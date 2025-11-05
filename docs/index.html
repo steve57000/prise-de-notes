@@ -15,9 +15,20 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">🧠 Notes</div>
+    <div class="topbar-left">
+      <button id="menuToggle" class="icon-button" type="button" aria-label="Ouvrir la navigation">
+        ☰
+      </button>
+      <div class="brand">🧠 Notes</div>
+    </div>
     <input id="search" type="search" placeholder="Rechercher…" aria-label="Rechercher une note" />
+    <div class="topbar-actions">
+      <button id="themeToggle" class="icon-button" type="button" aria-label="Activer le thème clair" title="Basculer le thème">
+        🌙
+      </button>
+    </div>
   </header>
+  <div id="overlay" class="overlay" hidden></div>
 
   <main class="layout">
     <nav id="sidebar" aria-label="Navigation des notes">
