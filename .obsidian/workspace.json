@@ -11,14 +11,13 @@
             "id": "58d09972218491a6",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "bases",
               "state": {
-                "file": "README.md",
-                "mode": "source",
-                "source": false
+                "file": "Tables des matières.base",
+                "viewName": "Table"
               },
-              "icon": "lucide-file",
-              "title": "README"
+              "icon": "lucide-layout-grid",
+              "title": "Tables des matières"
             }
           }
         ]
@@ -164,20 +163,30 @@
       "bases:Create new base": false
     }
   },
-  "active": "6c948228a6c79cce",
+  "active": "58d09972218491a6",
   "lastOpenFiles": [
-    "site",
+    "02-Tech/CSS/Border.md",
+    "02-Tech/CSS/Background.md",
+    "02-Tech/AWS/AMAZON WEB SERVICES.md",
+    "02-Tech/AWS/AWS PROJET JAVA, ANGULAR ET DOCKER.md",
     "02-Tech/Algo/Plus ou Moins.md",
-    "attachments",
-    "02-Tech/Algo/Aventure forêt enchantée.md",
     "02-Tech/Algo/Les fonctions.md",
     "02-Tech/Algo/Les boucles.md",
-    "README.md",
-    "02-Tech",
-    "01-Projets",
-    "00-Inbox",
-    "Tables des matières.base",
+    "01-Projets/Gestion de projet/2020-Scrum-Guide-French.pdf",
     "01-Projets/Gestion de projet/2017-Scrum-Guide-French.pdf",
+    "00-Inbox/Veille/Ressources web.md",
+    "02-Tech/Algo/Aventure forêt enchantée.md",
+    "Tables des matières.base",
+    "docs/app.js~",
+    "attachments/URL.png",
+    "attachments/http.png",
+    "01-Projets/Gestion de projet/Introduction-a-la-Methodologie-Scrum.pdf",
+    "README.md",
+    "docs/style.css",
+    "docs/index.html",
+    "docs/app.js",
+    "docs",
+    "site/app.js",
     "Untitled.md",
     "02-Tech/Reseau/TCP ET UDP.md",
     "Anglais/2024-09-19.md",
@@ -187,24 +196,14 @@
     "manipulation-des-fichiers.md",
     "02-Tech/optimisation_hdd.md",
     "02-Tech/GitHub/Commande git M.Gamory.md",
-    "Cours/Java/FlorentGouget/Développement Logiciel Java - 2.pdf",
     "02-Tech/WordPress/Wordpress.md",
-    "02-Tech/WordPress",
     "02-Tech/UX Design/UX_Design_Guide.md",
     "02-Tech/UX Design/Advanced_UX_Design_Guide.md",
-    "02-Tech/UX Design",
     "02-Tech/Reseau/Protocole et Couches.md",
     "02-Tech/Reseau/SSL ET TLS.md",
     "02-Tech/Reseau/Domaines.md",
     "02-Tech/Reseau/DNS DHCP et Firewall.md",
-    "02-Tech/Reseau/CMS.md",
-    "02-Tech/Reseau",
-    "02-Tech/REACT/RESSOURCES.md",
-    "02-Tech/REACT/React_Guide_Complet.md",
-    "02-Tech/REACT/Environnement.md",
     "Sans titre 1.canvas",
-    "Sans titre.canvas",
-    "attachments/http.png",
-    "attachments/URL.png"
+    "Sans titre.canvas"
   ]
 }
