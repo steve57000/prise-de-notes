@@ -1,5 +1,3 @@
-
-
 # Veille Informatique
 
 Voici quelques ressources intéressantes pour ta veille informatique :
