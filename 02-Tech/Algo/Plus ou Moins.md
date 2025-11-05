@@ -30,9 +30,9 @@ Pour installer les bibliothèques nécessaires, tu as deux options :
 
 ### Lien vers les fichiers du jeu
 
-Tu peux accéder au fichier du jeu ici : [[Projets Python/C'est plus, c'est moins/main.py|main.py]]
+Tu peux accéder au fichier du jeu ici : [[main.py|main.py]]
 
-Tu peux également accéder au fichier requirements.txt ici : [[Projets Python/C'est plus, c'est moins/requirements.txt|requirements.txt]]
+Tu peux également accéder au fichier requirements.txt ici : [[requirements.txt|requirements.txt]]
 
 
 

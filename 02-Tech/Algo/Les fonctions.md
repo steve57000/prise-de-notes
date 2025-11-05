@@ -95,5 +95,5 @@ Pour rappel, pour savoir si `A` est divisible par `B`, on fait : `A % B == 0` (o
 Écrivez une fonction qui prend deux années en paramètre. Elle retourne le nombre d’années bissextiles contenues entre la première et la deuxième date (les 2 inclues). Appelez la fonction de l’exercice 3 pour savoir si une année est bissextile.
 
 
-[[Exo les Fonctions/version simple|Voir les exercices en version simple]]
+[[version simple|Voir les exercices en version simple]]
 [[version plus poussée|Voir les exercices en version plus poussée]]

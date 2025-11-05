@@ -1,0 +1,9 @@
+views:
+  - type: cards
+    name: Table
+    sort:
+      - property: file.name
+        direction: ASC
+    image: note.cssclasses
+    imageFit: contain
+    imageAspectRatio: 0.95

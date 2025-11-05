@@ -1,20 +1,98 @@
-# Présentation du projet
+# 🧠 Mes notes Obsidian
 
-Ce dépôt est un modèle de coffre fort pour vous guider dans vos prises de notes avec l'outil [Obsidian](https://obsidian.md/)
+Bienvenue dans mon dépôt de **notes personnelles et techniques**, organisé avec [Obsidian](https://obsidian.md/).  
+Ce vault rassemble mes connaissances, mes recherches et mes expérimentations en développement et conception logicielle.
 
-La prise de notes est un facteur essentiel de votre réussite ! Prendre des notes régulièrement et de manière structurée vous permettra de progresser rapidement sans rien laisser de côté.
+---
 
-Vous pouvez vous inspirer du dossier "Module" qui vous servira de modèle sur la manière d'organiser vos notes.
+## 🧭 Accès rapide
 
-Pour une prise de note efficace nous vous invitions à rapidement vous former à l'usage de la syntaxe Markdown : https://www.markdownguide.org/
+👉 [Ouvrir la table des matières dans Obsidian](obsidian://open?vault=prise-de-notes&file=Tables%20des%20mati%C3%A8res.base)
 
-## Guide d'utilisation
+> ⚠️ Ce lien fonctionne uniquement si ton vault local s’appelle **`prise-de-notes`** et qu’il est ouvert dans Obsidian.
 
-Pour suivre l'évolution et synchroniser vos notes, nous vous conseillons d'utiliser l'outil de versioning [Git](https://git-scm.com/)
+---
 
-**Près-requis** : https://metz-numeric-school.gitbook.io/cours-dev/v/git
+## 📚 Table des matières
 
-Pour mettre en place votre super système de prise de notes, veuillez suivre les indications suivantes :
-* Créer votre compte [GitHub](https://github.com/join)
-* Utiliser ce modèle pour créer un nouveau dépôt sur votre compte
-* Récupérer le code source du dépôt sur votre ordinateur (clone ou téléchargement zip)
+| Catégorie | Contenu |
+|------------|----------|
+| ⚙️ **Algo** | Algorithmes et structures de données |
+| 🅰️ **Angular** | Composants, services, routing et bonnes pratiques |
+| 🧩 **Assets** | Ressources graphiques, icônes, modèles |
+| ☁️ **AWS** | Notes sur Amazon Web Services et le cloud |
+| 🗄️ **BDD** | Bases de données SQL / NoSQL, requêtes et schémas |
+| 🎨 **CSS** | Sélecteurs, animations, Tailwind, bonnes pratiques |
+| 💻 **Culture informatique** | Concepts, histoire, curiosités techniques |
+| 📈 **Gestion de projet** | Méthodes Agile, Scrum, outils de suivi |
+| 🐙 **GitHub** | Commandes, workflows, intégrations CI/CD |
+| 🌐 **HTML** | Structure, sémantique, accessibilité |
+| ☕ **Java** | Syntaxe, POO, collections, exemples |
+| 🌱 **Java Spring** | API REST, sécurité JWT, services et entités |
+| ⚡ **JavaScript** | DOM, ES6+, promesses, bonnes pratiques |
+| 🐘 **PHP** | Programmation serveur, logique MVC |
+| 🧠 **Projets Python** | Scripts et mini-projets réalisés |
+| 🐍 **Python** | Bases, librairies, automation |
+| ⚛️ **React** | Hooks, composants, Next.js, performance |
+| 🧑‍🎨 **UX Design** | Principes, accessibilité, ergonomie |
+| 🔍 **Veille** | Articles, tendances, ressources techniques |
+| 💾 **Commandes Diskpart** | Nettoyage et formatage avancé des disques |
+| ⚙️ **Optimisation HDD** | Amélioration des performances des disques durs |
+
+---
+
+## 🗂 Structure du dépôt
+
+- `00-Inbox/` : notes rapides et idées brutes  
+- `01-Projets/` : suivis de projets personnels et pros  
+- `02-Tech/` : documentation technique, code, astuces  
+- `attachments/` : images et fichiers liés  
+
+> Les fichiers locaux d’Obsidian (`workspace.json`, `cache`, etc.) sont exclus via `.gitignore`.
+
+---
+
+## 🚀 Utilisation
+
+### Cloner le dépôt
+```bash
+git clone https://github.com/<ton-utilisateur>/<nom-du-repo>.git
+```
+
+### Ouvrir dans Obsidian
+1. Lancer Obsidian  
+2. Cliquer sur **"Ouvrir un dossier comme un coffre (vault)"**  
+3. Sélectionner ce dossier cloné  
+
+---
+
+## 🔄 Sauvegarde et synchronisation
+
+Mise à jour manuelle :
+```bash
+git add .
+git commit -m "Mise à jour des notes"
+git push
+```
+
+> Astuce : tu peux automatiser la sauvegarde avec le plugin **Obsidian Git**.
+
+---
+
+## 🧠 Pourquoi Obsidian ?
+
+- Relier mes idées dans un **graphe de connaissances**  
+- Écrire en **Markdown pur**  
+- Travailler **offline et versionner avec Git**  
+- Contrôler totalement mes données
+
+---
+
+## 📜 Licence
+
+Ces notes sont partagées à **titre personnel**.  
+Merci de ne pas les reproduire sans autorisation.
+
+---
+
+✍️ *Créé et maintenu avec amour dans Obsidian, Git, et un brin de caféine ☕*
