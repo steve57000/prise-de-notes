@@ -24,13 +24,16 @@ async function listTree(paths) {
     for (const base of paths) {
         try {
             const res = await fetch(apiUrl(base));
-            if (!res.ok) continue;
+            if (!res.ok) {
+                console.warn("API GitHub non OK pour", base, res.status);
+                continue;
+            }
             const data = await res.json();
-            for (const node of data) entries.push(node);
-        } catch(e) { /* ignore */ }
+            entries.push(...data);
+        } catch (e) {
+            console.warn("Erreur API GitHub pour", base, e);
+        }
     }
-    // On ne descend pas trop profond pour rester minimal : on montre tous .md sous racine/dir1/dir2
-    // Pour une vraie récursion, tu peux écrire une fonction qui appelle apiUrl sur chaque dir rencontrée.
     return entries;
 }
 
@@ -101,32 +104,48 @@ function filterMenu(q) {
 async function loadNote(path) {
     const content = document.getElementById("content");
     content.innerHTML = "<p>Chargement…</p>";
+
     try {
         const res = await fetch(rawUrl(path));
-        if (!res.ok) throw new Error("Impossible de récupérer le fichier");
+        if (!res.ok) {
+            content.innerHTML = `<p>Erreur de chargement : ${res.status} ${res.statusText}</p>`;
+            return;
+        }
+
         const md = await res.text();
         content.innerHTML = renderMarkdown(md, path);
+
         // Syntax highlight
         content.querySelectorAll("pre code").forEach(el => hljs.highlightElement(el));
+
         // Marquer l’item actif
-        document.querySelectorAll("#fileList a").forEach(a => a.classList.toggle("active", a.getAttribute("href") === `#/${encodeURIComponent(path)}`));
-    } catch(e) {
+        const currentHref = `#/${encodeURIComponent(path)}`;
+        document.querySelectorAll("#fileList a")
+            .forEach(a => a.classList.toggle("active", a.getAttribute("href") === currentHref));
+
+    } catch (e) {
         content.innerHTML = `<p>Erreur de chargement : ${e.message}</p>`;
     }
 }
 
 // Conversion légère pour liens Obsidian [[Note]] -> liens vers fichiers .md (meilleur effort)
 function renderMarkdown(md, currentPath) {
-    // Convertit [[Nom de note]] en liens vers recherche simple ? Ici : ancre interne si fichier existe à la racine
+    // [[Note|Label]]  => lien de fallback vers la recherche GitHub
+    // - Cible : tout sauf '|' ou ']' (pas d'échappements redondants)
+    // - Label : tout sauf ']'
+    const wikilinkRe = /\[\[([^|\]]+)(?:\|([^\]]+))?\]\]/g;
+
     const converted = md
-        .replace(/\[\[([^\]\|]+)(\|([^\]]+))?\]\]/g, (m, target, _p, label) => {
+        .replace(wikilinkRe, (_m, target, label) => {
             const name = (label || target).trim();
-            // lien brut vers recherche GitHub (fallback) :
             const url = `https://github.com/${OWNER}/${REPO}/search?q=${encodeURIComponent(target.trim())}`;
             return `[${name}](${url})`;
         })
-        // Images relatives: ![alt](attachments/img.png) -> chemin brut
-        .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, src) => `![${alt}](${rawUrl(resolvePath(currentPath, src))})`);
+        // Images relatives: ![alt](path) => URL brute vers raw
+        // (garde \] car ici on sort du char class; c’est OK pour la lisibilité et la robustesse)
+        .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt, src) => {
+            return `![${alt}](${rawUrl(resolvePath(currentPath, src))})`;
+        });
 
     marked.setOptions({ mangle: false, headerIds: true });
     return marked.parse(converted);
