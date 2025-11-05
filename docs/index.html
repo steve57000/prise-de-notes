@@ -1,38 +1,37 @@
 <!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Notes Obsidian — Vue web</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Notes Obsidian — Vue web</title>
+  <link rel="stylesheet" href="style.css" />
 
-    <!-- Marked.js (Markdown -> HTML) -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- Highlight.js (mise en forme du code) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/default.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/build/highlight.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Marked.js (Markdown -> HTML) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Highlight.js (mise en forme du code) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/default.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/build/highlight.min.js"></script>
 </head>
 <body>
-<header class="topbar">
+  <header class="topbar">
     <div class="brand">🧠 Notes</div>
     <input id="search" type="search" placeholder="Rechercher…" aria-label="Rechercher une note" />
-</header>
+  </header>
 
-<main class="layout">
+  <main class="layout">
     <nav id="sidebar" aria-label="Navigation des notes">
-        <ul id="fileList" class="tree"></ul>
+      <ul id="fileList" class="tree" role="tree"></ul>
     </nav>
     <article id="content" class="content" aria-live="polite">
-        <h1>Bienvenue 👋</h1>
-        <p>Sélectionne une note dans la colonne de gauche.</p>
+      <h1>Bienvenue 👋</h1>
+      <p>Sélectionne une note dans la colonne de gauche.</p>
     </article>
-</main>
+  </main>
 
-<footer class="foot">
+  <footer class="foot">
     Rendu statique depuis GitHub • <a id="repoLink" href="#" target="_blank" rel="noopener">Voir le dépôt</a>
-</footer>
+  </footer>
 
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

@@ -1,181 +1,203 @@
 // --- CONFIG À ADAPTER ---
-const OWNER  = "steve57000";      // ex: "octocat"
-const REPO   = "prise-de-notes";          // ex: "obsidian-notes"
-const BRANCH = "main";                 // ou "gh-pages" selon ta config
-// Chemins où chercher des notes (dossiers racine de ton vault)
-const ROOT_DIRS = ["", "00-Inbox", "01-Projets", "02-Tech", "attachments"];
-// Filtre des extensions à afficher
+const OWNER  = "ton-utilisateur";      // ex: "octocat"
+const REPO   = "nom-du-repo";          // ex: "obsidian-notes"
+const BRANCH = "main";                 // ou "gh-pages"
+// Dossiers à exclure de la navigation :
+const EXCLUDES = new Set([".github", ".git", ".obsidian", "node_modules", "docs", "site"]);
+// Extensions autorisées
 const ALLOWED_EXT = [".md"];
 
-// Liens utiles
 document.getElementById("repoLink").href = `https://github.com/${OWNER}/${REPO}`;
 
-// Utilitaires
+// Helpers
 const apiUrl = (path="") => `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(BRANCH)}`;
 const rawUrl = (path) => `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${path.split("/").map(encodeURIComponent).join("/")}`;
-const isDir = (node) => node.type === "dir";
-const isFile = (node) => node.type === "file";
+const isDir = (n) => n.type === "dir";
+const isFile = (n) => n.type === "file";
 const hasAllowedExt = (name) => ALLOWED_EXT.some(ext => name.toLowerCase().endsWith(ext));
 const byAlpha = (a,b) => a.name.localeCompare(b.name, 'fr', {numeric:true});
 
-// Récupération récursive du contenu
-async function listTree(paths) {
-    const entries = [];
-    for (const base of paths) {
-        try {
-            const res = await fetch(apiUrl(base));
-            if (!res.ok) {
-                console.warn("API GitHub non OK pour", base, res.status);
-                continue;
-            }
-            const data = await res.json();
-            entries.push(...data);
-        } catch (e) {
-            console.warn("Erreur API GitHub pour", base, e);
-        }
+// Récupération d'un dossier
+async function readDir(path) {
+  try {
+    const res = await fetch(apiUrl(path));
+    if (!res.ok) {
+      console.warn("GitHub API not ok for", path, res.status);
+      return [];
     }
-    return entries;
+    const data = await res.json();
+    return data.filter(entry => {
+      const base = entry.name;
+      return !EXCLUDES.has(base) && !base.startsWith(".");
+    }).sort(byAlpha);
+  } catch (e) {
+    console.warn("GitHub API error for", path, e);
+    return [];
+  }
 }
 
-// Construction du menu (simple : dossiers en haut, fichiers en dessous)
+// Construction récursive de l'arbre
+async function buildFolder(parentEl, path) {
+  const entries = await readDir(path);
+  if (!entries.length) return;
+
+  const ul = document.createElement("ul");
+  ul.className = "tree children";
+  parentEl.appendChild(ul);
+
+  for (const d of entries.filter(isDir)) {
+    const li = document.createElement("li");
+    const caret = document.createElement("span");
+    caret.className = "caret";
+    caret.textContent = "▶";
+    const label = document.createElement("span");
+    label.className = "folder";
+    label.appendChild(caret);
+    label.appendChild(document.createTextNode(" " + d.name));
+    label.dataset.path = d.path;
+    label.setAttribute("role", "button");
+    label.setAttribute("aria-expanded", "false");
+    li.appendChild(label);
+    ul.appendChild(li);
+  }
+
+  for (const f of entries.filter(isFile).filter(n => hasAllowedExt(n.name))) {
+    const li = document.createElement("li");
+    const href = `#/${encodeURIComponent(f.path)}`;
+    li.innerHTML = `<a href="${href}">📝 ${escapeHtml(f.name.replace(/\.md$/i, ""))}</a>`;
+    ul.appendChild(li);
+  }
+}
+
+// Menu racine (lazy)
 async function buildMenu() {
-    const list = document.getElementById("fileList");
-    list.innerHTML = "<li class='folder'>Chargement…</li>";
+  const list = document.getElementById("fileList");
+  list.innerHTML = "";
 
-    const roots = await listTree([""]);
-    const dirs  = roots.filter(isDir).sort(byAlpha);
-    const files = roots.filter(isFile).filter(n => hasAllowedExt(n.name)).sort(byAlpha);
+  const rootEntries = await readDir("");
+  for (const d of rootEntries.filter(isDir)) {
+    const li = document.createElement("li");
+    const caret = document.createElement("span");
+    caret.className = "caret";
+    caret.textContent = "▶";
+    const label = document.createElement("span");
+    label.className = "folder";
+    label.appendChild(caret);
+    label.appendChild(document.createTextNode(" " + d.name));
+    label.dataset.path = d.path;
+    label.setAttribute("role", "button");
+    label.setAttribute("aria-expanded", "false");
+    li.appendChild(label);
+    list.appendChild(li);
+  }
+  for (const f of rootEntries.filter(isFile).filter(n => hasAllowedExt(n.name))) {
+    const li = document.createElement("li");
+    const href = `#/${encodeURIComponent(f.path)}`;
+    li.innerHTML = `<a href="${href}">📝 ${escapeHtml(f.name.replace(/\.md$/i, ""))}</a>`;
+    list.appendChild(li);
+  }
 
-    list.innerHTML = "";
-
-    // Dossiers racine
-    for (const d of dirs) {
-        const li = document.createElement("li");
-        li.innerHTML = `<div class="folder">📁 ${d.name}</div>`;
-        // Charger les fichiers de chaque dossier (un niveau)
-        const res = await fetch(apiUrl(d.path));
-        if (res.ok) {
-            const children = (await res.json()).filter(isFile).filter(n => hasAllowedExt(n.name)).sort(byAlpha);
-            if (children.length) {
-                const ul = document.createElement("ul");
-                ul.className = "tree";
-                for (const f of children) {
-                    const item = document.createElement("li");
-                    const href = `#/${encodeURIComponent(f.path)}`;
-                    item.innerHTML = `<a href="${href}">📝 ${f.name.replace(/\.md$/i, "")}</a>`;
-                    ul.appendChild(item);
-                }
-                li.appendChild(ul);
-            }
-        }
-        list.appendChild(li);
-    }
-
-    // Fichiers au niveau racine
-    if (files.length) {
-        const rootHeader = document.createElement("li");
-        rootHeader.innerHTML = `<div class="folder">📁 Racine</div>`;
-        const ul = document.createElement("ul");
-        ul.className = "tree";
-        for (const f of files) {
-            const item = document.createElement("li");
-            const href = `#/${encodeURIComponent(f.path)}`;
-            item.innerHTML = `<a href="${href}">📝 ${f.name.replace(/\.md$/i, "")}</a>`;
-            ul.appendChild(item);
-        }
-        rootHeader.appendChild(ul);
-        list.appendChild(rootHeader);
-    }
-
-    // Recherche
-    const search = document.getElementById("search");
-    search.addEventListener("input", () => filterMenu(search.value.trim().toLowerCase()));
+  const search = document.getElementById("search");
+  search.addEventListener("input", () => filterMenu(search.value.trim().toLowerCase()));
 }
+
+// Toggle folders
+document.getElementById("sidebar").addEventListener("click", async (e) => {
+  const label = e.target.closest(".folder");
+  if (!label) return;
+  const expanded = label.getAttribute("aria-expanded") === "true";
+  const caret = label.querySelector(".caret");
+
+  if (expanded) {
+    const next = label.parentElement.querySelector(".children");
+    if (next) next.remove();
+    label.setAttribute("aria-expanded", "false");
+    if (caret) caret.textContent = "▶";
+  } else {
+    await buildFolder(label.parentElement, label.dataset.path);
+    label.setAttribute("aria-expanded", "true");
+    if (caret) caret.textContent = "▼";
+  }
+});
 
 function filterMenu(q) {
-    const items = document.querySelectorAll("#fileList a");
-    items.forEach(a => {
-        const visible = !q || a.textContent.toLowerCase().includes(q);
-        a.parentElement.style.display = visible ? "" : "none";
-    });
+  const items = document.querySelectorAll("#fileList a");
+  items.forEach(a => {
+    const visible = !q || a.textContent.toLowerCase().includes(q);
+    a.parentElement.style.display = visible ? "" : "none";
+  });
 }
 
-// Loader d’une note
+// Affichage d'une note
 async function loadNote(path) {
-    const content = document.getElementById("content");
-    content.innerHTML = "<p>Chargement…</p>";
+  const content = document.getElementById("content");
+  content.innerHTML = "<p>Chargement…</p>";
 
-    try {
-        const res = await fetch(rawUrl(path));
-        if (!res.ok) {
-            content.innerHTML = `<p>Erreur de chargement : ${res.status} ${res.statusText}</p>`;
-            return;
-        }
-
-        const md = await res.text();
-        content.innerHTML = renderMarkdown(md, path);
-
-        // Syntax highlight
-        content.querySelectorAll("pre code").forEach(el => hljs.highlightElement(el));
-
-        // Marquer l’item actif
-        const currentHref = `#/${encodeURIComponent(path)}`;
-        document.querySelectorAll("#fileList a")
-            .forEach(a => a.classList.toggle("active", a.getAttribute("href") === currentHref));
-
-    } catch (e) {
-        content.innerHTML = `<p>Erreur de chargement : ${e.message}</p>`;
+  try {
+    const res = await fetch(rawUrl(path));
+    if (!res.ok) {
+      content.innerHTML = `<p>Erreur de chargement : ${res.status} ${res.statusText}</p>`;
+      return;
     }
+    const md = await res.text();
+    content.innerHTML = renderMarkdown(md, path);
+    content.querySelectorAll("pre code").forEach(el => hljs.highlightElement(el));
+
+    const currentHref = `#/${encodeURIComponent(path)}`;
+    document.querySelectorAll("#fileList a")
+      .forEach(a => a.classList.toggle("active", a.getAttribute("href") === currentHref));
+  } catch (e) {
+    content.innerHTML = `<p>Erreur de chargement : ${e.message}</p>`;
+  }
 }
 
-// Conversion légère pour liens Obsidian [[Note]] -> liens vers fichiers .md (meilleur effort)
+// Conversion légère : wikilinks & images
 function renderMarkdown(md, currentPath) {
-    // [[Note|Label]]  => lien de fallback vers la recherche GitHub
-    // - Cible : tout sauf '|' ou ']' (pas d'échappements redondants)
-    // - Label : tout sauf ']'
-    const wikilinkRe = /\[\[([^|\]]+)(?:\|([^\]]+))?\]\]/g;
+  const wikilinkRe = /\[\[([^|\]]+?)(?:\|([^\]]+?))?\]\]/g;
+  const converted = md
+    .replace(wikilinkRe, (_m, target, label) => {
+      const name = (label || target).trim();
+      const url = `https://github.com/${OWNER}/${REPO}/search?q=${encodeURIComponent(target.trim())}`;
+      return `[${escapeMd(name)}](${url})`;
+    })
+    .replace(/!\[([^\]]*?)\]\(([^)]+?)\)/g, (_m, alt, src) => {
+      return `![${escapeMd(alt)}](${rawUrl(resolvePath(currentPath, src))})`;
+    });
 
-    const converted = md
-        .replace(wikilinkRe, (_m, target, label) => {
-            const name = (label || target).trim();
-            const url = `https://github.com/${OWNER}/${REPO}/search?q=${encodeURIComponent(target.trim())}`;
-            return `[${name}](${url})`;
-        })
-        // Images relatives: ![alt](path) => URL brute vers raw
-        // (garde \] car ici on sort du char class; c’est OK pour la lisibilité et la robustesse)
-        .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt, src) => {
-            return `![${alt}](${rawUrl(resolvePath(currentPath, src))})`;
-        });
-
-    marked.setOptions({ mangle: false, headerIds: true });
-    return marked.parse(converted);
+  marked.setOptions({ mangle: false, headerIds: true });
+  return marked.parse(converted);
 }
 
-// Résolution de chemin relatif (./, ../)
+// Utils
 function resolvePath(basePath, rel) {
-    const baseParts = basePath.split("/").slice(0, -1);
-    const relParts = rel.split("/");
-    for (const p of relParts) {
-        if (p === "." || p === "") continue;
-        if (p === "..") baseParts.pop();
-        else baseParts.push(p);
-    }
-    return baseParts.join("/");
+  const baseParts = basePath.split("/").slice(0, -1);
+  const relParts = rel.split("/");
+  for (const p of relParts) {
+    if (p === "." || p === "") continue;
+    if (p === "..") baseParts.pop();
+    else baseParts.push(p);
+  }
+  return baseParts.join("/");
+}
+function escapeHtml(s) {
+  return s.replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+}
+function escapeMd(s) {
+  return s.replace(/([\\`*_\[\]{}()#+\-.!|])/g, "\\$1");
 }
 
-// Router hash (#/path/to/file.md)
+// Router
 function router() {
-    const hash = decodeURIComponent(location.hash || "");
-    if (hash.startsWith("#/")) {
-        const path = hash.slice(2);
-        loadNote(path);
-    }
+  const hash = decodeURIComponent(location.hash || "");
+  if (hash.startsWith("#/")) {
+    const path = hash.slice(2);
+    loadNote(path);
+  }
 }
-
 window.addEventListener("hashchange", router);
 
 // Init
 (async function init() {
-    await buildMenu();
-    router();
+  await buildMenu();
+  router();
 })();
