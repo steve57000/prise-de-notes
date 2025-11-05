@@ -1,0 +1,210 @@
+{
+  "main": {
+    "id": "68b5e99451513721",
+    "type": "split",
+    "children": [
+      {
+        "id": "1225fb8a3f21101f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "58d09972218491a6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "GitHub/Commande git M.Gamory.md",
+                "mode": "preview",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Commande git M.Gamory"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "d32fbc6823b08ef8",
+    "type": "split",
+    "children": [
+      {
+        "id": "63b5c10ea5bde788",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6c948228a6c79cce",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Explorateur de fichiers"
+            }
+          },
+          {
+            "id": "03d3764381dc1957",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Rechercher"
+            }
+          },
+          {
+            "id": "a9b47becbbc3a91d",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Signet"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 209.5
+  },
+  "right": {
+    "id": "78f6df6de190eea1",
+    "type": "split",
+    "children": [
+      {
+        "id": "8c17c8817a610261",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c7aa612b64d29c10",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Cours/Culture Informatique/Langages_de_Programmation_depuis_1950.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Rétrolien pour Langages_de_Programmation_depuis_1950"
+            }
+          },
+          {
+            "id": "7613dddd8117c9ea",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Cours/Culture Informatique/Langages_de_Programmation_depuis_1950.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Liens sortants de Langages_de_Programmation_depuis_1950"
+            }
+          },
+          {
+            "id": "58e7d97bddfbc6d3",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              },
+              "icon": "lucide-tags",
+              "title": "Mots-clés"
+            }
+          },
+          {
+            "id": "b669550fe33c6d7f",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Cours/Culture Informatique/Langages_de_Programmation_depuis_1950.md"
+              },
+              "icon": "lucide-list",
+              "title": "Plan de Langages_de_Programmation_depuis_1950"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Ouvrir le sélecteur rapide": false,
+      "graph:Ouvrir la vue graphique": false,
+      "canvas:Créer une nouvelle toile": false,
+      "daily-notes:Ouvrir la note quotidienne": false,
+      "templates:Insérer le modèle": false,
+      "command-palette:Ouvrir la palette de commandes": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "58d09972218491a6",
+  "lastOpenFiles": [
+    "Cours/Java/FlorentGouget/Développement Logiciel Java - 2.pdf",
+    "WordPress/Wordpress.md",
+    "WordPress",
+    "UX Design/UX_Design_Guide.md",
+    "UX Design/Advanced_UX_Design_Guide.md",
+    "UX Design",
+    "Reseau/TCP ET UDP.md",
+    "Reseau/Protocole et Couches.md",
+    "Reseau/SSL ET TLS.md",
+    "Reseau/Domaines.md",
+    "Reseau/DNS DHCP et Firewall.md",
+    "Reseau/CMS.md",
+    "Reseau",
+    "REACT/RESSOURCES.md",
+    "REACT/React_Guide_Complet.md",
+    "REACT/Environnement.md",
+    "REACT",
+    "Python/Cours_Classes_Python.md",
+    "Python",
+    "PHP/Php.md",
+    "PHP/Formulaire.md",
+    "PHP/Cours_Avance.md",
+    "PHP",
+    "Javascript/RESSOURCES.md",
+    "Javascript/JavaScript_Guide_Complet.md",
+    "Javascript",
+    "JAVA spring/FranckBansept/Spring 3.pdf",
+    "JAVA spring/JAVA SPRING.md",
+    "JAVA spring/FranckBansept",
+    "JAVA spring",
+    "Java/Java_Guide_Complet.md",
+    "Java/JAVA suite.md",
+    "HTML/Introduction-HTML.md",
+    "HTML/Projet-Pratique.md",
+    "HTML/Cours_HTML.md",
+    "GitHub/Installation.md",
+    "Sans titre 1.canvas",
+    "Sans titre.canvas",
+    "Assets/http.png",
+    "Assets/URL.png"
+  ]
+}
