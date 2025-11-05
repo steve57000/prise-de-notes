@@ -1,6 +1,6 @@
 // --- CONFIG À ADAPTER ---
-const OWNER  = "ton-utilisateur";      // ex: "octocat"
-const REPO   = "nom-du-repo";          // ex: "obsidian-notes"
+const OWNER  = "steve57000";      // ex: "octocat"
+const REPO   = "prise-de-notes";          // ex: "obsidian-notes"
 const BRANCH = "main";                 // ou "gh-pages"
 // Dossiers à exclure de la navigation :
 const EXCLUDES = new Set([".github", ".git", ".obsidian", "node_modules", "docs", "site"]);
