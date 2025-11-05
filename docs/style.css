@@ -41,6 +41,8 @@ body {
 .tree .children { margin-left: .6rem; padding-left: .6rem; border-left: 1px dashed var(--border); }
 .content { padding: 1rem 1.2rem; overflow: auto; }
 .content a { color: var(--accent); }
+.content img.wikilink-embed { max-width: 100%; height: auto; border-radius: .5rem; border: 1px solid var(--border); display: block; margin: 1rem 0; }
+.content .wikilink-missing { color: var(--muted); font-style: italic; }
 .content pre { padding: .8rem; border-radius: .6rem; background: #0b0b0d; overflow: auto; }
 .content code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
 .foot {
