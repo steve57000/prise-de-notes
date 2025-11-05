@@ -107,8 +107,11 @@ if ($repoLink) $repoLink.href = `https://github.com/${OWNER}/${REPO}`;
 const $menuToggle = document.getElementById("menuToggle");
 const $themeToggle = document.getElementById("themeToggle");
 const $overlay = document.getElementById("overlay");
+const $sidebar = document.getElementById("sidebar");
+const $topbar = document.querySelector(".topbar");
 
-const MOBILE_QUERY = window.matchMedia("(max-width: 768px)");
+const MOBILE_QUERY = window.matchMedia("(max-width: 1024px)");
+const SUPPORTS_INERT = typeof HTMLElement !== "undefined" && "inert" in HTMLElement.prototype;
 const THEME_STORAGE_KEY = "notes-viewer-theme";
 
 const apiUrl = (path = "") =>
@@ -157,6 +160,18 @@ function storeTheme(theme) {
         // stockage indisponible (mode privé, etc.) : ignorer
     }
 }
+
+function updateTopbarOffset() {
+    if (!$topbar) return;
+    const { height } = $topbar.getBoundingClientRect();
+    if (!height) return;
+    document.documentElement.style.setProperty("--topbar-offset", `${Math.ceil(height)}px`);
+}
+
+window.addEventListener("resize", updateTopbarOffset);
+window.addEventListener("orientationchange", updateTopbarOffset);
+document.addEventListener("DOMContentLoaded", updateTopbarOffset);
+updateTopbarOffset();
 
 function updateThemeToggle(theme) {
     if (!$themeToggle) return;
@@ -216,6 +231,31 @@ function isSidebarOpen() {
     return document.body?.classList.contains("sidebar-open");
 }
 
+function updateSidebarAccessibility(open) {
+    if (!$sidebar) return;
+    const isMobile = MOBILE_QUERY.matches;
+
+    if (!isMobile) {
+        $sidebar.removeAttribute("aria-hidden");
+        if (SUPPORTS_INERT) {
+            $sidebar.inert = false;
+        } else {
+            $sidebar.removeAttribute("inert");
+        }
+        return;
+    }
+
+    const hidden = !open;
+    $sidebar.setAttribute("aria-hidden", hidden ? "true" : "false");
+    if (SUPPORTS_INERT) {
+        $sidebar.inert = hidden;
+    } else if (hidden) {
+        $sidebar.setAttribute("inert", "");
+    } else {
+        $sidebar.removeAttribute("inert");
+    }
+}
+
 function setSidebarOpen(open) {
     const body = document.body;
     if (!body) return;
@@ -227,6 +267,7 @@ function setSidebarOpen(open) {
         $menuToggle.setAttribute("aria-expanded", open ? "true" : "false");
         $menuToggle.setAttribute("aria-label", open ? "Fermer la navigation" : "Ouvrir la navigation");
     }
+    updateSidebarAccessibility(open);
 }
 
 function closeSidebar() {
@@ -255,10 +296,8 @@ function setupSidebarControls() {
         $overlay.addEventListener("click", closeSidebar);
     }
 
-    const handleQueryChange = (event) => {
-        if (!event.matches) {
-            closeSidebar();
-        }
+    const handleQueryChange = () => {
+        setSidebarOpen(false);
     };
     if (MOBILE_QUERY.addEventListener) {
         MOBILE_QUERY.addEventListener("change", handleQueryChange);
@@ -271,6 +310,8 @@ function setupSidebarControls() {
             closeSidebar();
         }
     });
+
+    updateSidebarAccessibility(isSidebarOpen());
 }
 
 function iconFor(name) {
