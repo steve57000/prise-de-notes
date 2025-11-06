@@ -2,7 +2,7 @@
 
 Voici quelques ressources intéressantes pour ta veille informatique :
 
-1.**Daily Dev** [Daily Dev](https://daily.dev/fr-fr) : Là où les développeurs souffrent ensemble
+1. **Daily Dev** [Daily Dev](https://daily.dev/fr-fr) : Là où les développeurs souffrent ensemble
 
 2. **Hacker News** - [Hacker News](https://news.ycombinator.com/) : Un site d'actualités sur la technologie et l'entrepreneuriat où tu peux trouver des articles intéressants et des discussions sur les dernières tendances.
 
