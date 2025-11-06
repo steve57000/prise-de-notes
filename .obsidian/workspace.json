@@ -11,13 +11,14 @@
             "id": "58d09972218491a6",
             "type": "leaf",
             "state": {
-              "type": "bases",
+              "type": "markdown",
               "state": {
-                "file": "Tables des matières.base",
-                "viewName": "Table"
+                "file": "00-Inbox/Veille/Ressources web.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-grid",
-              "title": "Tables des matières"
+              "icon": "lucide-file",
+              "title": "Ressources web"
             }
           }
         ]
@@ -165,6 +166,9 @@
   },
   "active": "58d09972218491a6",
   "lastOpenFiles": [
+    "02-Tech/GitHub/Commandes Git Complètes.md",
+    "00-Inbox/Veille/Ressources web.md",
+    "Tables des matières.base",
     "02-Tech/CSS/Border.md",
     "02-Tech/CSS/Background.md",
     "02-Tech/AWS/AMAZON WEB SERVICES.md",
@@ -174,9 +178,7 @@
     "02-Tech/Algo/Les boucles.md",
     "01-Projets/Gestion de projet/2020-Scrum-Guide-French.pdf",
     "01-Projets/Gestion de projet/2017-Scrum-Guide-French.pdf",
-    "00-Inbox/Veille/Ressources web.md",
     "02-Tech/Algo/Aventure forêt enchantée.md",
-    "Tables des matières.base",
     "docs/app.js~",
     "attachments/URL.png",
     "attachments/http.png",
@@ -202,7 +204,6 @@
     "02-Tech/Reseau/Protocole et Couches.md",
     "02-Tech/Reseau/SSL ET TLS.md",
     "02-Tech/Reseau/Domaines.md",
-    "02-Tech/Reseau/DNS DHCP et Firewall.md",
     "Sans titre 1.canvas",
     "Sans titre.canvas"
   ]
