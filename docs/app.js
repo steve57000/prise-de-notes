@@ -90,6 +90,7 @@ const OWNER = CONFIG.owner;
 const REPO = CONFIG.repo;
 let BRANCH = CONFIG.branch;
 const ROOT_PATH = CONFIG.rootPath || "";
+const NORMALIZED_ROOT = normalizeRepoPath(ROOT_PATH);
 
 // Dossiers à exclure de la navigation (en plus de tous les éléments cachés .*)
 const EXCLUDES = new Set(CONFIG.excludes);
@@ -444,6 +445,8 @@ const NOTE_INDEX_NAME = new Map();
 const FILE_INDEX_PATH = new Map();
 const FILE_INDEX_NAME = new Map();
 const FILE_INDEX_STEM = new Map();
+const ALL_FILE_PATHS = new Set();
+const DIRECTORY_TREE = new Map();
 
 function normalizeKey(str) {
     return str
@@ -481,7 +484,47 @@ function shouldExclude(path) {
     return parts.some((part) => part.startsWith(".") || EXCLUDES.has(part));
 }
 
+function normalizeRepoPath(path) {
+    if (!path) return "";
+    return path.replace(/^\/+|\/+$/g, "");
+}
+
+function isWithinRoot(path) {
+    if (!NORMALIZED_ROOT) return true;
+    const normalized = normalizeRepoPath(path);
+    return normalized === NORMALIZED_ROOT || normalized.startsWith(`${NORMALIZED_ROOT}/`);
+}
+
+function toRelativePath(path) {
+    const normalized = normalizeRepoPath(path);
+    if (!NORMALIZED_ROOT) return normalized;
+    if (normalized === NORMALIZED_ROOT) return "";
+    if (normalized.startsWith(`${NORMALIZED_ROOT}/`)) {
+        return normalized.slice(NORMALIZED_ROOT.length + 1);
+    }
+    return null;
+}
+
+function fromRelativePath(relative) {
+    const normalized = normalizeRepoPath(relative);
+    if (!NORMALIZED_ROOT) return normalized;
+    if (!normalized) return NORMALIZED_ROOT;
+    return `${NORMALIZED_ROOT}/${normalized}`;
+}
+
+function isRelevantForRoot(path) {
+    if (!NORMALIZED_ROOT) return true;
+    const normalized = normalizeRepoPath(path);
+    if (!normalized) return true;
+    return (
+        normalized === NORMALIZED_ROOT ||
+        normalized.startsWith(`${NORMALIZED_ROOT}/`) ||
+        NORMALIZED_ROOT.startsWith(`${normalized}/`)
+    );
+}
+
 function registerFile(path) {
+    ALL_FILE_PATHS.add(path);
     const fileKey = normalizeFilePath(path);
     FILE_INDEX_PATH.set(fileKey, path);
 
@@ -495,20 +538,150 @@ function registerFile(path) {
     }
 }
 
-async function buildIndex() {
+function ensureDirEntry(key) {
+    if (!DIRECTORY_TREE.has(key)) {
+        DIRECTORY_TREE.set(key, { dirs: new Map(), files: new Map() });
+    }
+    return DIRECTORY_TREE.get(key);
+}
+
+function buildDirectoryTree() {
+    DIRECTORY_TREE.clear();
+    ensureDirEntry("");
+
+    for (const path of ALL_FILE_PATHS) {
+        if (!isWithinRoot(path)) continue;
+        const relative = toRelativePath(path);
+        if (relative == null) continue;
+
+        const segments = relative.split("/").filter(Boolean);
+        if (!segments.length) continue;
+
+        const fileName = segments.pop();
+        let currentKey = "";
+
+        for (const segment of segments) {
+            const parentEntry = ensureDirEntry(currentKey);
+            const childKey = currentKey ? `${currentKey}/${segment}` : segment;
+            if (!parentEntry.dirs.has(segment)) {
+                parentEntry.dirs.set(segment, {
+                    key: childKey,
+                    path: fromRelativePath(childKey)
+                });
+            }
+            ensureDirEntry(childKey);
+            currentKey = childKey;
+        }
+
+        const dirEntry = ensureDirEntry(currentKey);
+        if (hasAllowedExt(fileName)) {
+            const fileKey = currentKey ? `${currentKey}/${fileName}` : fileName;
+            dirEntry.files.set(fileName, {
+                path: fromRelativePath(fileKey),
+                name: fileName
+            });
+        }
+    }
+}
+
+async function fetchTreeFromJsDelivr() {
+    try {
+        const base = `https://data.jsdelivr.com/v1/package/gh/${OWNER}/${REPO}@${encodeURIComponent(BRANCH)}`;
+        const res = await fetch(base);
+        if (!res.ok) return null;
+
+        const data = await res.json();
+        if (!Array.isArray(data?.files)) return null;
+
+        const stack = data.files.map((entry) => ({ entry, prefix: "" }));
+        const paths = [];
+
+        while (stack.length) {
+            const { entry, prefix } = stack.pop();
+            if (!entry || !entry.name) continue;
+            const currentPath = prefix ? `${prefix}/${entry.name}` : entry.name;
+            if (!isRelevantForRoot(currentPath)) {
+                continue;
+            }
+            if (shouldExclude(currentPath)) {
+                continue;
+            }
+            if (entry.type === "file") {
+                paths.push(currentPath);
+            } else if (entry.type === "directory") {
+                let children = Array.isArray(entry.files) ? entry.files : null;
+                if (!children) {
+                    const childUrl = `${base}/${encodePath(currentPath)}`;
+                    try {
+                        const childRes = await fetch(childUrl);
+                        if (childRes.ok) {
+                            const childData = await childRes.json();
+                            if (Array.isArray(childData?.files)) {
+                                children = childData.files;
+                            }
+                        }
+                    } catch {
+                        /* ignore */
+                    }
+                }
+                if (Array.isArray(children)) {
+                    for (const child of children) {
+                        stack.push({ entry: child, prefix: currentPath });
+                    }
+                }
+            }
+        }
+
+        return paths;
+    } catch {
+        return null;
+    }
+}
+
+async function fetchTreeFromGitHub() {
     try {
         const treeUrl = `https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${encodeURIComponent(BRANCH)}?recursive=1`;
         const res = await fetch(treeUrl);
-        if (!res.ok) return;
+        if (!res.ok) return null;
 
         const data = await res.json();
-        if (!data?.tree) return;
+        if (!Array.isArray(data?.tree)) return null;
 
-        for (const entry of data.tree) {
-            if (entry.type !== "blob") continue;
-            if (shouldExclude(entry.path)) continue;
-            registerFile(entry.path);
+        return data.tree
+            .filter((entry) => entry.type === "blob" && entry.path)
+            .map((entry) => entry.path);
+    } catch {
+        return null;
+    }
+}
+
+async function buildIndex() {
+    NOTE_INDEX_PATH.clear();
+    NOTE_INDEX_NAME.clear();
+    FILE_INDEX_PATH.clear();
+    FILE_INDEX_NAME.clear();
+    FILE_INDEX_STEM.clear();
+    ALL_FILE_PATHS.clear();
+    DIRECTORY_TREE.clear();
+
+    try {
+        let paths = await fetchTreeFromJsDelivr();
+        if (!paths || !paths.length) {
+            paths = await fetchTreeFromGitHub();
         }
+        if (!paths) {
+            console.error("Impossible de récupérer l'index des fichiers.");
+            return;
+        }
+
+        for (const entryPath of paths) {
+            if (!entryPath) continue;
+            if (!isRelevantForRoot(entryPath)) continue;
+            if (shouldExclude(entryPath)) continue;
+            registerFile(entryPath);
+        }
+
+        buildDirectoryTree();
     } catch (err) {
         console.error("Indexation échouée", err);
     }
@@ -616,28 +789,29 @@ function findFileLink(rawTarget, currentPath) {
 
 
 // ======================
-//  GITHUB CONTENT
+//  STRUCTURED CONTENT
 // ======================
-async function readDir(path) {
-    try {
-        const res = await fetch(apiUrl(path));
-        if (!res.ok) return [];
+function getDirectoryEntries(path) {
+    const relative = toRelativePath(path || "");
+    if (relative == null) return [];
+    const node = DIRECTORY_TREE.get(relative);
+    if (!node) return [];
 
-        const data = await res.json();
-        // Filtre : on cache éléments cachés (.) + exclus + fichiers non autorisés
-        return data
-            .filter((entry) => {
-                const base = entry.name;
-                if (base.startsWith(".")) return false;
-                if (EXCLUDES.has(base)) return false;
-                if (isDir(entry)) return true;
-                if (isFile(entry) && hasAllowedExt(base)) return true;
-                return false;
-            })
-            .sort(byAlpha);
-    } catch {
-        return [];
-    }
+    const dirs = Array.from(node.dirs.entries()).map(([name, info]) => ({
+        type: "dir",
+        name,
+        path: info.path
+    }));
+
+    const files = Array.from(node.files.entries()).map(([name, info]) => ({
+        type: "file",
+        name,
+        path: info.path
+    }));
+
+    const sortedDirs = dirs.sort(byAlpha);
+    const sortedFiles = files.sort(byAlpha);
+    return [...sortedDirs, ...sortedFiles];
 }
 
 
@@ -646,10 +820,14 @@ async function readDir(path) {
 // ======================
 async function buildMenu() {
     const list = document.getElementById("fileList");
+    if (!list) return;
     list.innerHTML = "";
 
     const root = ROOT_PATH || "";
-    const rootEntries = await readDir(root);
+    const rootEntries = getDirectoryEntries(root);
+
+    allFoldersLoaded = false;
+    preloadAllFoldersPromise = null;
 
     // Dossiers racine
     for (const d of rootEntries.filter(isDir)) {
@@ -699,7 +877,7 @@ function makeFileNode(name, fullPath) {
     return li;
 }
 
-document.getElementById("sidebar")?.addEventListener("click", async (e) => {
+document.getElementById("sidebar")?.addEventListener("click", (e) => {
     const link = e.target.closest("a");
     if (link) {
         closeSidebarOnMobile();
@@ -724,7 +902,7 @@ document.getElementById("sidebar")?.addEventListener("click", async (e) => {
         return;
     }
 
-    await buildFolder(parent, label.dataset.path);
+    buildFolder(parent, label.dataset.path);
     const updatedChildren = parent.querySelector(":scope > .children");
     if (updatedChildren) updatedChildren.hidden = false;
     label.setAttribute("aria-expanded", "true");
@@ -732,32 +910,27 @@ document.getElementById("sidebar")?.addEventListener("click", async (e) => {
     delete label.dataset.searchOpen;
 });
 
-async function buildFolder(parentEl, path) {
+function buildFolder(parentEl, path) {
     if (!parentEl || parentEl.dataset.type !== "folder") return;
 
     if (parentEl.dataset.loaded === "true") {
         return;
     }
 
-    const entries = await readDir(path);
+    const entries = getDirectoryEntries(path);
     let ul = parentEl.querySelector(":scope > .children");
-    if (!entries.length) {
-        if (!ul) {
-            ul = document.createElement("ul");
-            ul.className = "tree children";
-            ul.hidden = true;
-            parentEl.appendChild(ul);
-        }
-        parentEl.dataset.loaded = "true";
-        return;
-    }
-
     if (!ul) {
         ul = document.createElement("ul");
         ul.className = "tree children";
         parentEl.appendChild(ul);
     } else {
         ul.innerHTML = "";
+    }
+
+    if (!entries.length) {
+        ul.hidden = true;
+        parentEl.dataset.loaded = "true";
+        return;
     }
 
     for (const d of entries.filter(isDir)) {
@@ -851,16 +1024,16 @@ async function ensureAllFoldersLoaded() {
         return;
     }
 
-    const list = document.getElementById("fileList");
-    if (!list) return;
+    preloadAllFoldersPromise = Promise.resolve().then(() => {
+        const list = document.getElementById("fileList");
+        if (!list) return;
 
-    preloadAllFoldersPromise = (async () => {
         const queue = Array.from(list.children).filter((li) => li.dataset.type === "folder");
         while (queue.length) {
             const folder = queue.shift();
             const label = folder?.querySelector(":scope > .folder");
             if (!folder || !label) continue;
-            await buildFolder(folder, label.dataset.path);
+            buildFolder(folder, label.dataset.path);
             const children = folder.querySelector(":scope > .children");
             if (!children) continue;
             Array.from(children.children).forEach((child) => {
@@ -869,7 +1042,7 @@ async function ensureAllFoldersLoaded() {
                 }
             });
         }
-    })();
+    });
 
     try {
         await preloadAllFoldersPromise;
