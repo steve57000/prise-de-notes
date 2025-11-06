@@ -88,7 +88,7 @@ function buildConfig() {
 const CONFIG = buildConfig();
 const OWNER = CONFIG.owner;
 const REPO = CONFIG.repo;
-const BRANCH = CONFIG.branch;
+let BRANCH = CONFIG.branch;
 const ROOT_PATH = CONFIG.rootPath || "";
 
 // Dossiers à exclure de la navigation (en plus de tous les éléments cachés .*)
@@ -101,6 +101,80 @@ const ALLOWED_EXT = Array.from(new Set(CONFIG.allowedExt));
 // ======================
 //  UTILS & HELPERS
 // ======================
+function decodeCandidate(candidate) {
+    return typeof candidate === "string" ? candidate.trim() : "";
+}
+
+async function fetchRepoMetadata() {
+    try {
+        const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}`);
+        if (!res.ok) return null;
+        return await res.json();
+    } catch {
+        return null;
+    }
+}
+
+async function branchExists(candidate) {
+    const branch = decodeCandidate(candidate);
+    if (!branch) return false;
+
+    try {
+        const res = await fetch(
+            `https://api.github.com/repos/${OWNER}/${REPO}/branches/${encodeURIComponent(branch)}`
+        );
+        if (res.ok) return true;
+        if (res.status === 403) return BRANCH === branch; // rate limit or private repo: keep current branch
+    } catch {
+        /* ignore */
+    }
+    return false;
+}
+
+let ensureBranchPromise = null;
+
+async function ensureBranchResolved() {
+    if (ensureBranchPromise) {
+        await ensureBranchPromise;
+        return;
+    }
+
+    ensureBranchPromise = (async () => {
+        const candidates = [];
+        const seen = new Set();
+        const addCandidate = (value) => {
+            const normalized = decodeCandidate(value);
+            if (!normalized || seen.has(normalized)) return;
+            seen.add(normalized);
+            candidates.push(normalized);
+        };
+
+        addCandidate(BRANCH);
+
+        const meta = await fetchRepoMetadata();
+        if (meta?.default_branch) {
+            addCandidate(meta.default_branch);
+        }
+
+        ["main", "master"].forEach(addCandidate);
+
+        for (const candidate of candidates) {
+            if (await branchExists(candidate)) {
+                BRANCH = candidate;
+                CONFIG.branch = candidate;
+                return;
+            }
+        }
+
+        if (!BRANCH) {
+            BRANCH = candidates[0] || "main";
+            CONFIG.branch = BRANCH;
+        }
+    })();
+
+    await ensureBranchPromise;
+}
+
 const $repoLink = document.getElementById("repoLink");
 if ($repoLink) $repoLink.href = `https://github.com/${OWNER}/${REPO}`;
 
@@ -114,14 +188,25 @@ const MOBILE_QUERY = window.matchMedia("(max-width: 1024px)");
 const SUPPORTS_INERT = typeof HTMLElement !== "undefined" && "inert" in HTMLElement.prototype;
 const THEME_STORAGE_KEY = "notes-viewer-theme";
 
-const apiUrl = (path = "") =>
-    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(BRANCH)}`;
-
-const rawUrl = (path) =>
-    `https://cdn.jsdelivr.net/gh/${OWNER}/${REPO}@${BRANCH}/${path
+function encodePath(path) {
+    if (!path) return "";
+    return path
         .split("/")
-        .map(encodeURIComponent)
-        .join("/")}`;
+        .map((segment) => encodeURIComponent(segment))
+        .join("/");
+}
+
+const apiUrl = (path = "", branch = BRANCH) => {
+    const encodedPath = encodePath(path);
+    const baseUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodedPath}`;
+    return branch ? `${baseUrl}?ref=${encodeURIComponent(branch)}` : baseUrl;
+};
+
+const rawUrl = (path, branch = BRANCH) => {
+    const encodedPath = encodePath(path);
+    const safeBranch = branch || "main";
+    return `https://cdn.jsdelivr.net/gh/${OWNER}/${REPO}@${encodeURIComponent(safeBranch)}/${encodedPath}`;
+};
 
 const isDir  = (n) => n.type === "dir";
 const isFile = (n) => n.type === "file";
@@ -979,6 +1064,7 @@ setupSidebarControls();
         return;
     }
 
+    await ensureBranchResolved();
     await buildIndex();
     await buildMenu();
     router();
