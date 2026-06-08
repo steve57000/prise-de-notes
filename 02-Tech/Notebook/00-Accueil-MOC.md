@@ -1,6 +1,6 @@
-# 📚 MOC — Notebook BottleNeck parfait
+# 📚 MOC — Notebook parfait
 
-Ce dossier est prêt à être glissé dans un coffre **Obsidian**. Il regroupe des cours simples, avancés et professionnels pour reproduire un notebook complet d'analyse de données comme celui du projet **BottleNeck**.
+Il regroupe des cours simples, avancés et professionnels pour reproduire un notebook complet d'analyse de données.
 
 ## Objectif du coffre
 
