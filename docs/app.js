@@ -89,6 +89,7 @@ const CONFIG = buildConfig();
 const OWNER = CONFIG.owner;
 const REPO = CONFIG.repo;
 let BRANCH = CONFIG.branch;
+let CONTENT_REF = "";
 const ROOT_PATH = CONFIG.rootPath || "";
 const NORMALIZED_ROOT = normalizeRepoPath(ROOT_PATH);
 
@@ -124,7 +125,11 @@ async function branchExists(candidate) {
         const res = await fetch(
             `https://api.github.com/repos/${OWNER}/${REPO}/branches/${encodeURIComponent(branch)}`
         );
-        if (res.ok) return true;
+        if (res.ok) {
+            const data = await res.json();
+            if (typeof data?.commit?.sha === "string") CONTENT_REF = data.commit.sha;
+            return true;
+        }
         if (res.status === 403) return BRANCH === branch; // rate limit or private repo: keep current branch
     } catch {
         /* ignore */
@@ -205,7 +210,7 @@ const apiUrl = (path = "", branch = BRANCH) => {
 
 const rawUrl = (path, branch = BRANCH) => {
     const encodedPath = encodePath(path);
-    const safeBranch = branch || "main";
+    const safeBranch = CONTENT_REF || branch || "main";
     return `https://cdn.jsdelivr.net/gh/${OWNER}/${REPO}@${encodeURIComponent(safeBranch)}/${encodedPath}`;
 };
 
@@ -586,7 +591,8 @@ function buildDirectoryTree() {
 
 async function fetchTreeFromJsDelivr() {
     try {
-        const base = `https://data.jsdelivr.com/v1/package/gh/${OWNER}/${REPO}@${encodeURIComponent(BRANCH)}`;
+        const packageRef = CONTENT_REF || BRANCH;
+        const base = `https://data.jsdelivr.com/v1/package/gh/${OWNER}/${REPO}@${encodeURIComponent(packageRef)}`;
         const res = await fetch(base);
         if (!res.ok) return null;
 
