@@ -1,31 +1,12 @@
-# Projet 8 — Analysez l’évolution des prix de l’immobilier avec Python
+# Google Slides — guide pratique du diaporama
 
-Projet du parcours **Business Intelligence Analyst** d’OpenClassrooms. Cette page sert de point d’entrée pour relier les cours, les notions Python/data et le travail du projet.
+Ces notes transforment le cours OpenClassrooms en repères réutilisables. Le cours prend surtout Google Slides comme exemple et compare ponctuellement PowerPoint et Impress. Les menus peuvent évoluer selon les versions.
 
-## Objectif
+**À retenir :** préparer le message et le plan avant d’ouvrir le logiciel ; garder une idée par diapositive ; utiliser un style sobre et cohérent ; tester le support dans les conditions de projection.
 
-Analyser l’évolution du marché immobilier parisien, étudier les transactions historiques, estimer la valeur d’un portefeuille immobilier et présenter les résultats de façon compréhensible pour un interlocuteur non technique.
+Le guide suit le cours OpenClassrooms [« Réalisez un diaporama pour accompagner votre présentation »](https://openclassrooms.com/fr/courses/5870121-realisez-un-diaporama-pour-accompagner-votre-presentation).
 
-## Ressources du projet
-
-- [Brief du projet sur OpenClassrooms](https://openclassrooms.com/fr/paths/805/projects/1591)
-- [Dépôt GitHub du projet](https://github.com/steve57000/p8)
-- [README du dépôt](https://github.com/steve57000/p8/blob/master/README.md)
-- [Plan de travail et état d’avancement](https://github.com/steve57000/p8/blob/master/PLAN_DE_TRAVAIL.md)
-- [Notebook d’analyse](https://github.com/steve57000/p8/blob/master/livrables/Bell_Steve_1_Notebook_102026.ipynb)
-- [Présentation des résultats](https://github.com/steve57000/p8/blob/master/livrables/Bell_Steve_2_presentation_102026.pptx)
-- [Notes de soutenance](https://github.com/steve57000/p8/blob/master/livrables/NOTES_SOUTENANCE.md)
-- [Prévisions du portefeuille au 31/12/2022](https://github.com/steve57000/p8/blob/master/livrables/predictions_valorisation_portefeuille_2022-12-31.csv)
-
-## État indiqué dans le dépôt
-
-Le plan de travail actuel décrit l’analyse exploratoire, la modélisation, la prévision du portefeuille et un premier test de classification comme réalisés. Il indique aussi qu’une validation finale reste à faire avec l’échantillon de biens et les étiquettes de référence de Louise, qui ne sont pas encore disponibles dans le dépôt.
-
-Ces points décrivent l’état des fichiers du projet. Nous les reprendrons avec les cours pour comprendre les choix, vérifier les résultats et consigner les éventuelles corrections.
-
-## Notes des cours
-
-### Cours 1 — Réalisez un diaporama pour accompagner votre présentation
+## Réalisez un diaporama pour accompagner votre présentation
 
 Ce cours donne les bases pour préparer un support clair et professionnel. Le diaporama accompagne la présentation orale : il aide le public à suivre le fil, comprendre les idées, garder son attention et voir les éléments importants. Il ne remplace pas l’exposé et ne doit pas devenir un texte à lire.
 
@@ -61,7 +42,7 @@ Ce cours donne les bases pour préparer un support clair et professionnel. Le di
 - Exporter aussi une version PDF pour conserver une version facile à projeter si la mise en forme varie d’un logiciel à l’autre.
 - Les interfaces évoluent ; les noms et emplacements des commandes peuvent différer de ceux des exemples du cours.
 
-#### Application à la présentation du Projet 8
+#### Exemple d’application à une analyse de données
 
 - Construire le récit autour du besoin métier, des données, de la méthode, des résultats, des limites et des décisions possibles.
 - Présenter une idée à la fois ; utiliser les graphiques du projet seulement s’ils restent lisibles à l’écran.
@@ -70,9 +51,12 @@ Ce cours donne les bases pour préparer un support clair et professionnel. Le di
 
 #### Quiz de la Partie 1
 
+[Ouvrir le quiz « Préparez votre diaporama »](https://openclassrooms.com/fr/courses/5870121-realisez-un-diaporama-pour-accompagner-votre-presentation/exercises/3560)
+
+
 Le quiz « Préparez votre diaporama » vérifie notamment la synthèse du contenu, la lisibilité, le contraste, le choix des outils et les formats de fichiers. À compléter après avoir répondu dans le cours.
 
-### Partie 2 — Créer et présenter le diaporama
+## Partie 2 — Créer et présenter le diaporama
 
 #### Ressources du cours
 
@@ -113,13 +97,16 @@ Le quiz « Préparez votre diaporama » vérifie notamment la synthèse du conte
 - Faire face au public, éviter de se placer dans le faisceau du projecteur et désigner les éléments depuis l’écran de l’ordinateur. Une souris sans fil ou une télécommande permet de se déplacer.
 - Exporter en PDF si le support doit être remis au public.
 
-#### Application à la présentation du Projet 8
+#### Exemple d’application à une analyse de données
 
 - Utiliser des mises en page cohérentes, un masque pour les titres et la numérotation, et des graphiques simplifiés pour la projection.
 - Animer seulement les étapes d’un raisonnement ou d’un schéma qui sont expliquées progressivement ; éviter les effets décoratifs.
 - Préparer des notes orales associées aux diapositives, répéter le timing et tester le PDF ainsi que le matériel de projection avant la soutenance.
 
 #### Quiz « Améliorez un diaporama » — réponses proposées
+
+[Ouvrir le quiz](https://openclassrooms.com/fr/courses/5870121-realisez-un-diaporama-pour-accompagner-votre-presentation/exercises/3713)
+
 
 1. **Éditer la diapositive 2 :** cliquer sur sa vignette dans la zone de gauche.
 2. **Remplacer la zone texte par l’image :** sélectionner la zone de texte entière et la supprimer, puis insérer l’image.
@@ -133,15 +120,26 @@ Le quiz « Préparez votre diaporama » vérifie notamment la synthèse du conte
 10. **Projecteur VGA et ordinateur avec HDMI seulement :** non, pas directement ; il faut un adaptateur HDMI-vers-VGA compatible.
 11. **Posture :** se placer face au public avec l’ordinateur devant soi.
 
+## Ressources complémentaires
 
-## Journal du projet
+### Contraste et couleurs
 
-### Installation des dépendances sous Windows
+- [Code-couleur — choisir une couleur et récupérer son code hexadécimal](http://www.code-couleur.com/)
+- [Contrast Ratio — vérifier le contraste texte/fond](http://contrast-ratio.com/)
 
-Une erreur `WinError 206` a été rencontrée pendant l’installation des dépendances dans l’environnement virtuel de PyCharm, sur un chemin profond de NumPy. La cause et la solution testée restent à documenter ici.
+### Exemples du cours
 
-### Questions à reprendre
+![Exemple de diapositives cohérentes — OpenClassrooms](https://user.oc-static.com/upload/2019/08/05/15650071375029_diapo_coherence_annotee.png)
 
-- Quelles sont les hypothèses de la régression et comment interpréter son erreur de prédiction ?
-- Comment expliquer le résultat du clustering et ses limites à un public non technique ?
-- Quelles données et étiquettes sont nécessaires pour terminer la validation externe ?
+_Source : OpenClassrooms, cours « Réalisez un diaporama pour accompagner votre présentation »._
+
+![Exemple de contraste suffisant — OpenClassrooms](https://user.oc-static.com/upload/2019/08/05/15650075405083_diapo_contraste_ok_annotee.png)
+
+_Source : OpenClassrooms, cours « Réalisez un diaporama pour accompagner votre présentation »._
+
+- [Présentation finale de Sophie (PDF)](https://s3-eu-west-1.amazonaws.com/course.oc-static.com/courses/5870121/Utiliser_photos_v4.pdf)
+- [Version mise en forme de la présentation de Sophie (PPTX)](https://s3-eu-west-1.amazonaws.com/course.oc-static.com/courses/5870121/Utiliser_photos_v3.pptx)
+
+## Réutilisation dans un projet
+
+Pour adapter ces repères aux résultats d’une analyse, voir la fiche [[01-Projets/Projet 8 - Analyse de l'évolution immobilière avec Python|Projet 8]].

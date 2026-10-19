@@ -1,98 +1,74 @@
 # 🧠 Mes notes Obsidian
 
-Bienvenue dans mon dépôt de **notes personnelles et techniques**, organisé avec [Obsidian](https://obsidian.md/).  
-Ce vault rassemble mes connaissances, mes recherches et mes expérimentations en développement et conception logicielle.
+Bienvenue dans mon dépôt de notes personnelles et techniques, organisé avec [Obsidian](https://obsidian.md/). Il rassemble des tutoriels réutilisables, des références, des exercices et des fiches de suivi de projets.
 
----
+## Accès rapide
 
-## 🧭 Accès rapide
+- [Index des connaissances techniques](02-Tech/Index%20des%20connaissances.md)
+- [Index Python](02-Tech/Python/Index%20Python.md)
+- [Guide pratique du diaporama](02-Tech/Google%20Slides/Guide%20pratique%20du%20diaporama.md)
+- [Fiche de suivi du Projet 8](01-Projets/Projet%208%20-%20Analyse%20de%20l%27%C3%A9volution%20immobili%C3%A8re%20avec%20Python.md)
+- [Ouvrir la table des matières dans Obsidian](obsidian://open?vault=prise-de-notes&file=Tables%20des%20mati%C3%A8res.base)
 
-👉 [Ouvrir la table des matières dans Obsidian](obsidian://open?vault=prise-de-notes&file=Tables%20des%20mati%C3%A8res.base)
+> Le lien Obsidian fonctionne si le coffre local s’appelle `prise-de-notes` et est ouvert dans Obsidian.
 
-> ⚠️ Ce lien fonctionne uniquement si ton vault local s’appelle **`prise-de-notes`** et qu’il est ouvert dans Obsidian.
+## Organisation
 
----
+| Dossier | Contenu |
+|---|---|
+| `00-Inbox/` | Notes rapides et ressources à classer |
+| `01-Projets/` | Une fiche par projet ; les détails techniques renvoient vers `02-Tech/` |
+| `02-Tech/<technologie>/` | Tutoriels, procédures, exemples et références réutilisables, rangés par technologie ou domaine |
+| `attachments/` | Images, captures et fichiers liés aux notes |
 
-## 📚 Table des matières
+Un dossier de technologie sert à retrouver une connaissance réutilisable. Une fiche de projet sert à retrouver son objectif, ses liens, son avancement et ses questions. Les livrables propres à un projet restent dans son dépôt dédié.
 
-| Catégorie | Contenu |
-|------------|----------|
-| ⚙️ **Algo** | Algorithmes et structures de données |
-| 🅰️ **Angular** | Composants, services, routing et bonnes pratiques |
-| 🧩 **Assets** | Ressources graphiques, icônes, modèles |
-| ☁️ **AWS** | Notes sur Amazon Web Services et le cloud |
-| 🗄️ **BDD** | Bases de données SQL / NoSQL, requêtes et schémas |
-| 🎨 **CSS** | Sélecteurs, animations, Tailwind, bonnes pratiques |
-| 💻 **Culture informatique** | Concepts, histoire, curiosités techniques |
-| 📈 **Gestion de projet** | Méthodes Agile, Scrum, outils de suivi |
-| 🐙 **GitHub** | Commandes, workflows, intégrations CI/CD |
-| 🌐 **HTML** | Structure, sémantique, accessibilité |
-| ☕ **Java** | Syntaxe, POO, collections, exemples |
-| 🌱 **Java Spring** | API REST, sécurité JWT, services et entités |
-| ⚡ **JavaScript** | DOM, ES6+, promesses, bonnes pratiques |
-| 🐘 **PHP** | Programmation serveur, logique MVC |
-| 🧠 **Projets Python** | Scripts et mini-projets réalisés |
-| 🐍 **Python** | Bases, librairies, automation |
-| ⚛️ **React** | Hooks, composants, Next.js, performance |
-| 🧑‍🎨 **UX Design** | Principes, accessibilité, ergonomie |
-| 🔍 **Veille** | Articles, tendances, ressources techniques |
-| 💾 **Commandes Diskpart** | Nettoyage et formatage avancé des disques |
-| ⚙️ **Optimisation HDD** | Amélioration des performances des disques durs |
+## Domaines couverts
 
----
+| Domaine | Contenu |
+|---|---|
+| Algo | Boucles, fonctions et exercices d’algorithmique |
+| AWS | Services cloud et ressources AWS |
+| Angular | Composants, services et routing |
+| Bases de données | SQL, schémas et méthodes de modélisation |
+| CSS | Mise en page, animations, Flexbox, Grid et frameworks |
+| Culture informatique | Histoire et concepts informatiques |
+| Excel | Formules, tableaux croisés, graphiques et automatisation |
+| GitHub | Git, dépôts et workflows |
+| Gestion de projet | Guides et supports Scrum |
+| Google Slides | Concevoir, structurer et présenter un diaporama |
+| HTML | Structure, sémantique et accessibilité |
+| Java et Java Spring | Langage, programmation orientée objet et framework |
+| JavaScript | Syntaxe, DOM et bonnes pratiques |
+| Notebook | Analyse, nettoyage, statistiques et visualisation de données |
+| PHP | Programmation serveur |
+| Python | Notions, classes, exercices et exemples |
+| React | Composants, hooks et bonnes pratiques |
+| Réseaux | Protocoles, DNS, DHCP, TLS |
+| UX Design | Ergonomie et conception d’interfaces |
+| WordPress | CMS et personnalisation |
+| Système et stockage | Diskpart et optimisation des disques |
 
-## 🗂 Structure du dépôt
+## Ouvrir le coffre
 
-- `00-Inbox/` : notes rapides et idées brutes  
-- `01-Projets/` : suivis de projets personnels et pros  
-- `02-Tech/` : documentation technique, code, astuces  
-- `attachments/` : images et fichiers liés  
+1. Cloner le dépôt :
+   ```bash
+   git clone https://github.com/steve57000/prise-de-notes.git
+   ```
+2. Dans Obsidian, choisir **Ouvrir un dossier comme un coffre** et sélectionner le dossier cloné.
 
-> Les fichiers locaux d’Obsidian (`workspace.json`, `cache`, etc.) sont exclus via `.gitignore`.
+## Synchroniser avec Git
 
----
+Après avoir modifié les notes :
 
-## 🚀 Utilisation
-
-### Cloner le dépôt
-```bash
-git clone https://github.com/<ton-utilisateur>/<nom-du-repo>.git
-```
-
-### Ouvrir dans Obsidian
-1. Lancer Obsidian  
-2. Cliquer sur **"Ouvrir un dossier comme un coffre (vault)"**  
-3. Sélectionner ce dossier cloné  
-
----
-
-## 🔄 Sauvegarde et synchronisation
-
-Mise à jour manuelle :
 ```bash
 git add .
 git commit -m "Mise à jour des notes"
 git push
 ```
 
-> Astuce : tu peux automatiser la sauvegarde avec le plugin **Obsidian Git**.
+Le plugin **Obsidian Git** peut automatiser cette sauvegarde.
 
----
+## Licence
 
-## 🧠 Pourquoi Obsidian ?
-
-- Relier mes idées dans un **graphe de connaissances**  
-- Écrire en **Markdown pur**  
-- Travailler **offline et versionner avec Git**  
-- Contrôler totalement mes données
-
----
-
-## 📜 Licence
-
-Ces notes sont partagées à **titre personnel**.  
-Merci de ne pas les reproduire sans autorisation.
-
----
-
-✍️ *Créé et maintenu avec amour dans Obsidian, Git, et un brin de caféine ☕*
+Ces notes sont partagées à titre personnel. Merci de ne pas les reproduire sans autorisation.

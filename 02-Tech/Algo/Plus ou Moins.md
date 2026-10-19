@@ -30,9 +30,9 @@ Pour installer les bibliothèques nécessaires, tu as deux options :
 
 ### Lien vers les fichiers du jeu
 
-Tu peux accéder au fichier du jeu ici : [[main.py|main.py]]
+Tu peux accéder au fichier du jeu ici : [[02-Tech/Python/Exercices/Plus ou Moins/main.py|main.py]]
 
-Tu peux également accéder au fichier requirements.txt ici : [[requirements.txt|requirements.txt]]
+Tu peux également accéder au fichier requirements.txt ici : [[02-Tech/Python/Exercices/Plus ou Moins/requirements.txt|requirements.txt]]
 
 
 

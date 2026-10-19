@@ -73,4 +73,4 @@ Après avoir traversé le pont, tu aperçois enfin la sortie de la forêt. Cepen
    échec).
 
 
-[[Aventure dans la forêt|Voir le projet python]]
+[[02-Tech/Python/Exercices/Aventure dans la forêt|Voir le projet Python]]

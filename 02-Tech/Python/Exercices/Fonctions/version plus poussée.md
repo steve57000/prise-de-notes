@@ -1,4 +1,4 @@
-Retour à la note  : [[Les fonctions|Retour]]
+Retour à la note  : [[02-Tech/Algo/Les fonctions|Retour]]
 
 ```python
 from colorama import init, Fore, Style, Back  

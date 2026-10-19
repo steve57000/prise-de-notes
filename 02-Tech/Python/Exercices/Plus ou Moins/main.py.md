@@ -1,5 +1,5 @@
 
-Retour à la note d'information : [[Plus ou Moins|Retour]]
+Retour à la note d'information : [[02-Tech/Algo/Plus ou Moins|Retour]]
 
 
 ```python
