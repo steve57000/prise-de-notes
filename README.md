@@ -6,6 +6,7 @@ Bienvenue dans mon dépôt de notes personnelles et techniques, organisé avec [
 
 - [Index des connaissances techniques](02-Tech/Index%20des%20connaissances.md)
 - [Index Python](02-Tech/Python/Index%20Python.md)
+- [Guide Machine Learning](02-Tech/Machine%20Learning/Initiez-vous%20au%20Machine%20Learning.md)
 - [Guide pratique du diaporama](02-Tech/Google%20Slides/Guide%20pratique%20du%20diaporama.md)
 - [Fiche de suivi du Projet 8](01-Projets/Projet%208%20-%20Analyse%20de%20l%27%C3%A9volution%20immobili%C3%A8re%20avec%20Python.md)
 - [Ouvrir la table des matières dans Obsidian](obsidian://open?vault=prise-de-notes&file=Tables%20des%20mati%C3%A8res.base)
@@ -41,6 +42,7 @@ Un dossier de technologie sert à retrouver une connaissance réutilisable. Une 
 | Java et Java Spring | Langage, programmation orientée objet et framework |
 | JavaScript | Syntaxe, DOM et bonnes pratiques |
 | Notebook | Analyse, nettoyage, statistiques et visualisation de données |
+| Machine Learning | Modèles prédictifs, préparation des données et évaluation |
 | PHP | Programmation serveur |
 | Python | Notions, classes, exercices et exemples |
 | React | Composants, hooks et bonnes pratiques |

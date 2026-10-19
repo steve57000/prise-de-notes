@@ -22,6 +22,7 @@ Les dossiers de `02-Tech` regroupent les connaissances réutilisables par techno
 ## Données, méthodes et conception
 
 - [[Notebook/00-Accueil-MOC|Analyse de données et notebooks]]
+- [[Machine Learning/Initiez-vous au Machine Learning|Machine Learning]]
 - [[Excel/Prise_en_Main|Excel]]
 - [[Algo/Les boucles|Algorithmique]]
 - [[Gestion de projet/Ressources Scrum|Gestion de projet et Scrum]]
