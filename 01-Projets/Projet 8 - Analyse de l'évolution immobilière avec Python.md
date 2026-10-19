@@ -28,6 +28,7 @@ Le plan de travail indique que l’analyse exploratoire, la modélisation, la pr
 - [[02-Tech/Python/Index Python|Index Python]]
 - [[02-Tech/Notebook/00-Accueil-MOC|Parcours notebook d’analyse de données]]
 - [[02-Tech/Machine Learning/Initiez-vous au Machine Learning|Guide Machine Learning]]
+- [[02-Tech/Statistiques/Explorez les tests statistiques|Guide des tests statistiques]]
 - [[02-Tech/Algo/Les fonctions|Fonctions Python]]
 - [[02-Tech/Google Slides/Guide pratique du diaporama|Guide de présentation des résultats]]
 

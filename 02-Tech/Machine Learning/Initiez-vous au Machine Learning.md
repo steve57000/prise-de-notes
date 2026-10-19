@@ -12,6 +12,7 @@ Les prérequis recommandés sont les bibliothèques Python de Data Science, quel
 
 - [[02-Tech/Python/Index Python|Index Python]]
 - [[02-Tech/Notebook/00-Accueil-MOC|Notes sur les notebooks et l’analyse de données]]
+- [[02-Tech/Statistiques/Explorez les tests statistiques|Guide des tests statistiques]]
 - [Cours OpenClassrooms — bibliothèques Python pour la Data Science](https://openclassrooms.com/fr/courses/7771531-decouvrez-les-librairies-python-pour-la-data-science)
 - [Documentation officielle scikit-learn](https://scikit-learn.org/stable/)
 
