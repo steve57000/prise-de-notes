@@ -259,6 +259,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 .tree .caret svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .tree .folder[aria-expanded="true"] .caret { transform: rotate(90deg); }
 .tree .children { margin: 3px 0 7px 16px; padding: 2px 0 2px 12px; border-left: 1px solid var(--border); }
+.tree .children:not([hidden]) { transform-origin: top; animation: tree-open 190ms cubic-bezier(0.2, 0.75, 0.25, 1) both; }
 .tree a {
   display: grid;
   grid-template-columns: 17px minmax(0, 1fr);
@@ -326,6 +327,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 .content th { background: var(--bg-soft); color: var(--ink); }
 .content-enter > * { animation: content-in 230ms ease both; }
 @keyframes content-in { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tree-open { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 .loading-state { display: flex; align-items: center; gap: 10px; color: var(--muted) !important; }
 .loading-spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spinner 650ms linear infinite; }
 @keyframes spinner { to { transform: rotate(360deg); } }
@@ -351,9 +353,11 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 .welcome-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 11px 17px; margin-top: 30px; }
 .button-primary, .button-quiet { appearance: none; display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 10px; padding: 0 15px; border-radius: 13px; cursor: pointer; font-size: 12px; font-weight: 650; transition: transform 150ms ease, background 150ms ease, box-shadow 150ms ease; }
 .button-primary { border: 1px solid #365b4d; background: #365b4d; color: #fff9ef; box-shadow: 0 8px 19px rgba(54, 91, 77, 0.18); }
-.button-primary svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.button-primary svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; transition: transform 180ms ease; }
 .button-primary kbd { margin-left: 6px; border-color: rgba(255,255,255,0.24); background: rgba(255,255,255,0.1); color: #fff9ef; }
 .button-primary:hover { background: #284b3e; box-shadow: 0 12px 24px rgba(54, 91, 77, 0.24); transform: translateY(-1px); }
+.button-primary:hover svg { transform: scale(1.08); }
+.button-primary:active, .button-quiet:active { transform: translateY(1px) scale(0.985); }
 .button-quiet { border: 1px solid transparent; background: transparent; color: var(--ink); }
 .button-quiet svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; transition: transform 150ms ease; }
 .button-quiet:hover { background: var(--panel); }
@@ -406,6 +410,16 @@ body[data-theme="dark"] .icon-green { color: #c5dbc8; }
 .welcome-note-icon { display: grid; width: 34px; height: 34px; place-items: center; flex: 0 0 auto; border-radius: 11px; background: var(--sage); color: #486858; }
 .welcome-note-icon svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .welcome-note p { margin: 0; color: var(--muted); font-size: 11px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .note-card-back { animation: note-float-back 7.5s ease-in-out infinite; }
+  .note-card-front { animation: note-float-front 8.5s ease-in-out infinite; }
+  .art-spark { animation: spark-twinkle 3.4s ease-in-out infinite; transform-origin: center; }
+  .spark-two { animation-delay: 0.8s; }
+}
+@keyframes note-float-back { 0%, 100% { transform: rotate(7deg) translateY(0); } 50% { transform: rotate(7deg) translateY(-5px); } }
+@keyframes note-float-front { 0%, 100% { transform: rotate(-3deg) translateY(0); } 50% { transform: rotate(-3deg) translateY(-4px); } }
+@keyframes spark-twinkle { 0%, 100% { opacity: 0.65; transform: scale(0.94) rotate(-7deg); } 50% { opacity: 1; transform: scale(1.08) rotate(7deg); } }
 
 .foot {
   display: flex;

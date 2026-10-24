@@ -44,12 +44,12 @@
       }
     } catch {}
   </script>
-  <link rel="stylesheet" href="style.css?v=20261024" />
+  <link rel="stylesheet" href="style.css?v=20261024-ux2" />
   <title>Notes — une bibliothèque vivante</title>
 
   <!-- Les scripts différés gardent l’interface réactive pendant le chargement. -->
   <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script defer src="app.js?v=20261024"></script>
+  <script defer src="app.js?v=20261024-ux2"></script>
 </head>
 <body>
   <header class="topbar">
@@ -67,8 +67,8 @@
 
     <label class="search-field" for="search">
       <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 4.2 4.2" /></svg>
-      <input id="search" type="search" placeholder="Rechercher une note…" aria-label="Rechercher dans les notes" aria-keyshortcuts="Control+K Meta+K" autocomplete="off" spellcheck="false" />
-      <kbd class="shortcut" data-shortcut>Ctrl K</kbd>
+      <input id="search" type="search" placeholder="Rechercher une note…" aria-label="Rechercher dans les notes" aria-keyshortcuts="Control+K Meta+K" title="Filtre les titres des notes et les noms des dossiers" autocomplete="off" spellcheck="false" />
+      <kbd class="shortcut" data-shortcut>Ctrl + K</kbd>
     </label>
 
     <div class="topbar-actions">
@@ -97,7 +97,7 @@
       <p class="sidebar-intro">Explorez vos sujets et vos projets.</p>
       <p id="searchFeedback" class="search-feedback" role="status" aria-live="polite" hidden></p>
       <ul id="fileList" class="tree"></ul>
-      <p class="sidebar-hint"><span class="hint-dot" aria-hidden="true"></span>Une note vous attend ? <kbd data-shortcut>Ctrl K</kbd></p>
+      <p class="sidebar-hint"><span class="hint-dot" aria-hidden="true"></span>Rechercher une note <kbd data-shortcut>Ctrl + K</kbd></p>
     </nav>
 
     <article id="content" class="content" aria-live="polite" aria-busy="false">
@@ -108,12 +108,12 @@
           <p class="welcome-description">Une bibliothèque vivante pour retrouver vos notes techniques, suivre vos projets et faire avancer vos idées.</p>
 
           <div class="welcome-actions">
-            <button id="welcomeSearch" class="button-primary" type="button">
+            <button id="welcomeSearch" class="button-primary" type="button" title="Ouvre la recherche des noms de notes et de dossiers">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 4.2 4.2" /></svg>
               <span>Rechercher une note</span>
-              <kbd data-shortcut>Ctrl K</kbd>
+              <kbd data-shortcut>Ctrl + K</kbd>
             </button>
-            <button id="welcomeBrowse" class="button-quiet" type="button">
+            <button id="welcomeBrowse" class="button-quiet" type="button" aria-controls="fileList" title="Ouvre la navigation et développe le premier dossier">
               Explorer la bibliothèque
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
             </button>

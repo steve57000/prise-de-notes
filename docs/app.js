@@ -414,6 +414,61 @@ function toggleSidebar() {
     }
 }
 
+function focusNoteSearch() {
+    if (!$search) return;
+    $search.focus({ preventScroll: true });
+    $search.select();
+}
+
+function exploreLibrary() {
+    const list = document.getElementById("fileList");
+    const firstItem = list?.firstElementChild;
+    if (MOBILE_QUERY.matches) setSidebarOpen(true);
+
+    if (firstItem?.dataset.type !== "folder") {
+        const firstLink = list?.querySelector(":scope > li a");
+        requestAnimationFrame(() => {
+            firstLink?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
+            firstLink?.focus({ preventScroll: true });
+        });
+        return;
+    }
+
+    let currentFolder = firstItem;
+    let target = currentFolder.querySelector(":scope > .folder");
+    for (let depth = 0; depth < 16 && currentFolder?.dataset.type === "folder"; depth += 1) {
+        const label = currentFolder.querySelector(":scope > .folder");
+        if (!label) break;
+        if (label.getAttribute("aria-expanded") !== "true") {
+            buildFolder(currentFolder, label.dataset.path);
+            const children = currentFolder.querySelector(":scope > .children");
+            if (children) children.hidden = false;
+            label.setAttribute("aria-expanded", "true");
+        }
+
+        const children = currentFolder.querySelector(":scope > .children");
+        const firstNote = children?.querySelector(":scope > li[data-type='file'] a");
+        if (firstNote) {
+            target = firstNote;
+            break;
+        }
+
+        const nextFolder = children?.querySelector(":scope > li[data-type='folder']");
+        if (!nextFolder) {
+            target = label;
+            break;
+        }
+        currentFolder = nextFolder;
+        target = currentFolder.querySelector(":scope > .folder");
+    }
+
+    if (!target) return;
+    requestAnimationFrame(() => {
+        target.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
+        target.focus({ preventScroll: true });
+    });
+}
+
 function setupSidebarControls() {
     if ($menuToggle) {
         $menuToggle.setAttribute("aria-expanded", "false");
@@ -448,28 +503,38 @@ function setupSidebarControls() {
 
     const isApplePlatform = /Mac|iPhone|iPad/i.test(navigator.platform || navigator.userAgent || "");
     document.querySelectorAll("[data-shortcut]").forEach((element) => {
-        element.textContent = isApplePlatform ? "⌘ K" : "Ctrl K";
+        element.textContent = isApplePlatform ? "⌘ K" : "Ctrl + K";
+        element.title = "Ouvre la recherche des noms de notes et de dossiers";
     });
 
     document.addEventListener("keydown", (event) => {
-        if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "k") {
+        const isSearchShortcut = (event.ctrlKey || event.metaKey)
+            && !event.altKey
+            && !event.shiftKey
+            && !event.isComposing
+            && (event.key?.toLowerCase() === "k" || event.code === "KeyK");
+
+        if (isSearchShortcut) {
             event.preventDefault();
-            $search?.focus();
-            $search?.select();
+            event.stopPropagation();
+            focusNoteSearch();
+            return;
+        }
+
+        if (event.key === "Escape" && document.activeElement === $search) {
+            if ($search.value) {
+                $search.value = "";
+                filterMenu("");
+            }
+            $search.blur();
+            if (MOBILE_QUERY.matches && isSidebarOpen()) closeSidebar();
             return;
         }
 
         if (event.key === "Escape" && isSidebarOpen()) {
             closeSidebar({ restoreFocus: true });
-            return;
         }
-
-        if (event.key === "Escape" && document.activeElement === $search && $search?.value) {
-            $search.value = "";
-            filterMenu("");
-            $search.blur();
-        }
-    });
+    }, true);
 
     if ($overlay) $overlay.addEventListener("click", () => closeSidebar());
 
@@ -487,17 +552,11 @@ function setupSidebarControls() {
 
 function setupWelcomeActions() {
     document.getElementById("welcomeSearch")?.addEventListener("click", () => {
-        $search?.focus();
-        $search?.select();
+        focusNoteSearch();
     });
 
     document.getElementById("welcomeBrowse")?.addEventListener("click", () => {
-        if (MOBILE_QUERY.matches) {
-            setSidebarOpen(true);
-            requestAnimationFrame(() => $sidebarClose?.focus());
-        } else {
-            $sidebar?.querySelector(".folder, #fileList a")?.focus();
-        }
+        exploreLibrary();
     });
 }
 
