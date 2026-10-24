@@ -186,9 +186,15 @@ if ($repoLink) $repoLink.href = `https://github.com/${OWNER}/${REPO}`;
 
 const $menuToggle = document.getElementById("menuToggle");
 const $themeToggle = document.getElementById("themeToggle");
+const $homeButton = document.getElementById("homeButton");
+const $sidebarClose = document.getElementById("sidebarClose");
 const $overlay = document.getElementById("overlay");
 const $sidebar = document.getElementById("sidebar");
 const $topbar = document.querySelector(".topbar");
+const $search = document.getElementById("search");
+const $content = document.getElementById("content");
+const $themeColorMeta = document.querySelector('meta[name="theme-color"]');
+const HOME_CONTENT = $content?.innerHTML || "";
 
 const MOBILE_QUERY = window.matchMedia("(max-width: 1024px)");
 const SUPPORTS_INERT = typeof HTMLElement !== "undefined" && "inert" in HTMLElement.prototype;
@@ -278,21 +284,30 @@ function updateTopbarOffset() {
 window.addEventListener("resize", updateTopbarOffset);
 window.addEventListener("orientationchange", updateTopbarOffset);
 document.addEventListener("DOMContentLoaded", updateTopbarOffset);
+if (typeof ResizeObserver !== "undefined" && $topbar) {
+    new ResizeObserver(updateTopbarOffset).observe($topbar);
+}
 updateTopbarOffset();
 
 function updateThemeToggle(theme) {
     if (!$themeToggle) return;
     const next = theme === "dark" ? "clair" : "sombre";
-    const icon = theme === "dark" ? "☀️" : "🌙";
-    $themeToggle.textContent = icon;
+    const icon = theme === "dark"
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.1 15.3A8.2 8.2 0 0 1 8.7 3.9 8.3 8.3 0 1 0 20.1 15.3Z"/></svg>';
+    $themeToggle.innerHTML = icon;
     $themeToggle.setAttribute("aria-label", `Activer le thème ${next}`);
     $themeToggle.setAttribute("title", `Basculer vers le thème ${next}`);
+    if ($themeColorMeta) {
+        $themeColorMeta.content = theme === "dark" ? "#141d19" : "#f6f3eb";
+    }
 }
 
 function applyTheme(theme, { persist = false } = {}) {
     const body = document.body;
     if (!body) return;
     body.dataset.theme = theme;
+    document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
     updateThemeToggle(theme);
     if (persist) {
@@ -369,16 +384,20 @@ function setSidebarOpen(open) {
     body.classList.toggle("sidebar-open", open);
     if ($overlay) {
         $overlay.hidden = !open;
+        $overlay.setAttribute("aria-hidden", open ? "false" : "true");
     }
     if ($menuToggle) {
         $menuToggle.setAttribute("aria-expanded", open ? "true" : "false");
         $menuToggle.setAttribute("aria-label", open ? "Fermer la navigation" : "Ouvrir la navigation");
+        $menuToggle.setAttribute("title", open ? "Fermer la navigation" : "Ouvrir la navigation");
     }
     updateSidebarAccessibility(open);
 }
 
-function closeSidebar() {
+function closeSidebar({ restoreFocus = false } = {}) {
+    const wasOpen = isSidebarOpen();
     setSidebarOpen(false);
+    if (restoreFocus && wasOpen) $menuToggle?.focus();
 }
 
 function closeSidebarOnMobile() {
@@ -388,20 +407,71 @@ function closeSidebarOnMobile() {
 }
 
 function toggleSidebar() {
-    setSidebarOpen(!isSidebarOpen());
+    const opening = !isSidebarOpen();
+    setSidebarOpen(opening);
+    if (opening && MOBILE_QUERY.matches) {
+        requestAnimationFrame(() => $sidebarClose?.focus());
+    }
 }
 
 function setupSidebarControls() {
     if ($menuToggle) {
         $menuToggle.setAttribute("aria-expanded", "false");
-        $menuToggle.addEventListener("click", () => {
-            toggleSidebar();
+        $menuToggle.addEventListener("click", toggleSidebar);
+    }
+
+    if ($sidebarClose) {
+        $sidebarClose.addEventListener("click", () => closeSidebar({ restoreFocus: true }));
+    }
+
+    if ($search) {
+        $search.addEventListener("input", () => {
+            if (MOBILE_QUERY.matches && $search.value.trim()) {
+                setSidebarOpen(true);
+            }
+            filterMenu($search.value);
         });
     }
 
-    if ($overlay) {
-        $overlay.addEventListener("click", closeSidebar);
+    if ($homeButton) {
+        $homeButton.addEventListener("click", () => {
+            if ($search?.value) {
+                $search.value = "";
+                filterMenu("");
+            }
+            if (location.hash) location.hash = "";
+            else showWelcome();
+        });
     }
+
+    setupWelcomeActions();
+
+    const isApplePlatform = /Mac|iPhone|iPad/i.test(navigator.platform || navigator.userAgent || "");
+    document.querySelectorAll("[data-shortcut]").forEach((element) => {
+        element.textContent = isApplePlatform ? "⌘ K" : "Ctrl K";
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "k") {
+            event.preventDefault();
+            $search?.focus();
+            $search?.select();
+            return;
+        }
+
+        if (event.key === "Escape" && isSidebarOpen()) {
+            closeSidebar({ restoreFocus: true });
+            return;
+        }
+
+        if (event.key === "Escape" && document.activeElement === $search && $search?.value) {
+            $search.value = "";
+            filterMenu("");
+            $search.blur();
+        }
+    });
+
+    if ($overlay) $overlay.addEventListener("click", () => closeSidebar());
 
     const handleQueryChange = () => {
         setSidebarOpen(false);
@@ -412,22 +482,32 @@ function setupSidebarControls() {
         MOBILE_QUERY.addListener(handleQueryChange);
     }
 
-    document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && isSidebarOpen()) {
-            closeSidebar();
-        }
+    updateSidebarAccessibility(isSidebarOpen());
+}
+
+function setupWelcomeActions() {
+    document.getElementById("welcomeSearch")?.addEventListener("click", () => {
+        $search?.focus();
+        $search?.select();
     });
 
-    updateSidebarAccessibility(isSidebarOpen());
+    document.getElementById("welcomeBrowse")?.addEventListener("click", () => {
+        if (MOBILE_QUERY.matches) {
+            setSidebarOpen(true);
+            requestAnimationFrame(() => $sidebarClose?.focus());
+        } else {
+            $sidebar?.querySelector(".folder, #fileList a")?.focus();
+        }
+    });
 }
 
 function iconFor(name) {
     const e = extOf(name);
-    if (e === ".md") return "📝";
-    if (e === ".pdf") return "📄";
-    if ([".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp"].includes(e)) return "🖼️";
-    if ([".txt", ".json", ".csv", ".log"].includes(e)) return "📃";
-    return "📎";
+    let shape = '<path d="M7 3.8h7l4 4v12.4H7z"/><path d="M14 3.8v4h4M10 12h5m-5 3h5"/>';
+    if (e === ".pdf") shape = '<path d="M7 3.8h7l4 4v12.4H7z"/><path d="M14 3.8v4h4M9.5 15.5h1.7a1.5 1.5 0 0 0 0-3H9.5v4.2m4.5 0v-4.2h1.1a2.1 2.1 0 0 1 0 4.2H14"/>';
+    if ([".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp"].includes(e)) shape = '<rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/><circle cx="9" cy="9.5" r="1.5"/><path d="m5 17 4.5-4.5 3 3 2.5-2.5 4 4"/>';
+    if ([".txt", ".json", ".csv", ".log"].includes(e)) shape = '<path d="M7 3.8h7l4 4v12.4H7z"/><path d="M14 3.8v4h4M10 12h5m-5 3h5m-5 3h3"/>';
+    return `<svg class="file-icon" viewBox="0 0 24 24" aria-hidden="true">${shape}</svg>`;
 }
 
 function resolvePath(basePath, rel) {
@@ -688,8 +768,26 @@ async function buildIndex() {
         }
 
         buildDirectoryTree();
+        updateLibraryStats();
     } catch (err) {
         console.error("Indexation échouée", err);
+    }
+}
+
+function updateLibraryStats() {
+    const noteTotal = new Intl.NumberFormat("fr-FR").format(NOTE_INDEX_PATH.size);
+    const rootKey = toRelativePath(ROOT_PATH || "") || "";
+    const sectionTotal = DIRECTORY_TREE.get(rootKey)?.dirs.size || 0;
+    const sectionLabel = new Intl.NumberFormat("fr-FR").format(sectionTotal);
+
+    const noteCount = document.getElementById("noteCount");
+    const sectionCount = document.getElementById("sectionCount");
+    const libraryCount = document.getElementById("libraryCount");
+    if (noteCount) noteCount.textContent = noteTotal;
+    if (sectionCount) sectionCount.textContent = sectionLabel;
+    if (libraryCount) {
+        libraryCount.textContent = noteTotal;
+        libraryCount.setAttribute("aria-label", `${noteTotal} notes`);
     }
 }
 
@@ -845,25 +943,26 @@ async function buildMenu() {
         list.appendChild(makeFileNode(f.name, f.path));
     }
 
-    // Recherche
-    const search = document.getElementById("search");
-    if (search) {
-        search.addEventListener("input", () => filterMenu(search.value));
-    }
+    // Applique aussi une recherche saisie pendant le chargement de la bibliothèque.
+    if ($search?.value.trim()) filterMenu($search.value);
 }
 
 function makeFolderNode(name, fullPath) {
     const li    = document.createElement("li");
     const caret = document.createElement("span");
     caret.className = "caret";
-    caret.textContent = "▶";
+    caret.setAttribute("aria-hidden", "true");
+    caret.innerHTML = '<svg viewBox="0 0 16 16"><path d="m6 3 5 5-5 5"/></svg>';
 
-    const label = document.createElement("span");
+    const label = document.createElement("button");
+    label.type = "button";
     label.className = "folder";
     label.appendChild(caret);
-    label.appendChild(document.createTextNode(" " + name));
+    label.insertAdjacentHTML("beforeend", '<svg class="folder-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4.2l2 2H18.5a2 2 0 0 1 2 2v8.3a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></svg>');
+    const title = document.createElement("span");
+    title.textContent = name;
+    label.appendChild(title);
     label.dataset.path = fullPath;
-    label.setAttribute("role", "button");
     label.setAttribute("aria-expanded", "false");
 
     li.appendChild(label);
@@ -877,7 +976,7 @@ function makeFileNode(name, fullPath) {
     const li   = document.createElement("li");
     const href = `#/${encodeURIComponent(fullPath)}`;
     const title = name.replace(/\.md$/i, "");
-    li.innerHTML = `<a href="${href}">${iconFor(name)} ${escapeHtml(title)}</a>`;
+    li.innerHTML = `<a href="${href}">${iconFor(name)}<span>${escapeHtml(title)}</span></a>`;
     li.dataset.type = "file";
     setSearchMeta(li, title, fullPath, name);
     return li;
@@ -893,7 +992,6 @@ document.getElementById("sidebar")?.addEventListener("click", (e) => {
     const label = e.target.closest(".folder");
     if (!label) return;
 
-    const caret = label.querySelector(".caret");
     const parent = label.parentElement;
     if (!parent) return;
 
@@ -903,7 +1001,6 @@ document.getElementById("sidebar")?.addEventListener("click", (e) => {
     if (expanded) {
         if (children) children.hidden = true;
         label.setAttribute("aria-expanded", "false");
-        if (caret) caret.textContent = "▶";
         delete label.dataset.searchOpen;
         return;
     }
@@ -912,7 +1009,6 @@ document.getElementById("sidebar")?.addEventListener("click", (e) => {
     const updatedChildren = parent.querySelector(":scope > .children");
     if (updatedChildren) updatedChildren.hidden = false;
     label.setAttribute("aria-expanded", "true");
-    if (caret) caret.textContent = "▼";
     delete label.dataset.searchOpen;
 });
 
@@ -960,6 +1056,7 @@ async function filterMenu(q) {
 
     if (!query) {
         resetMenuFilter(list);
+        updateSearchFeedback(list, "");
         return;
     }
 
@@ -967,6 +1064,31 @@ async function filterMenu(q) {
     if (token !== filterSequence) return;
 
     Array.from(list.children).forEach((li) => applyMenuFilter(li, query));
+    updateSearchFeedback(list, query);
+}
+
+function updateSearchFeedback(list, query) {
+    const feedback = document.getElementById("searchFeedback");
+    if (!feedback) return;
+    if (!query) {
+        feedback.hidden = true;
+        feedback.textContent = "";
+        return;
+    }
+
+    const visibleNotes = Array.from(list.querySelectorAll('li[data-type="file"]'))
+        .filter((li) => getComputedStyle(li).display !== "none").length;
+    const matchingFolders = Array.from(list.querySelectorAll('li[data-type="folder"]'))
+        .filter((li) => (li.dataset.search || "").includes(query)).length;
+
+    if (visibleNotes) {
+        feedback.textContent = `${visibleNotes} note${visibleNotes > 1 ? "s" : ""} trouvée${visibleNotes > 1 ? "s" : ""}${matchingFolders ? ` · ${matchingFolders} dossier${matchingFolders > 1 ? "s" : ""}` : ""}`;
+    } else if (matchingFolders) {
+        feedback.textContent = `${matchingFolders} dossier${matchingFolders > 1 ? "s" : ""} correspondant${matchingFolders > 1 ? "s" : ""}`;
+    } else {
+        feedback.textContent = "Aucune note ou aucun dossier ne correspond.";
+    }
+    feedback.hidden = false;
 }
 
 function resetMenuFilter(list) {
@@ -975,13 +1097,11 @@ function resetMenuFilter(list) {
     });
     list.querySelectorAll(".folder[data-search-open='true']").forEach((label) => {
         const parent = label.parentElement;
-        const caret = label.querySelector(".caret");
         const children = parent?.querySelector(":scope > .children");
         if (children) {
             children.hidden = true;
         }
         label.setAttribute("aria-expanded", "false");
-        if (caret) caret.textContent = "▶";
         delete label.dataset.searchOpen;
     });
 }
@@ -1003,19 +1123,16 @@ function applyMenuFilter(li, query) {
 
     if (childrenContainer) {
         const label = li.querySelector(":scope > .folder");
-        const caret = label?.querySelector(".caret");
         if (childMatch) {
             const wasHidden = childrenContainer.hidden;
             childrenContainer.hidden = false;
             label?.setAttribute("aria-expanded", "true");
-            if (caret) caret.textContent = "▼";
             if (wasHidden) {
                 label.dataset.searchOpen = "true";
             }
         } else if (label?.dataset.searchOpen === "true") {
             childrenContainer.hidden = true;
             label.setAttribute("aria-expanded", "false");
-            if (caret) caret.textContent = "▶";
             delete label.dataset.searchOpen;
         }
     }
@@ -1119,9 +1236,51 @@ function markActive(path) {
 // ======================
 //  LOADER (content pane)
 // ======================
+let highlighterPromise = null;
+
+function ensureHighlighter() {
+    if (window.hljs) return Promise.resolve(true);
+    if (highlighterPromise) return highlighterPromise;
+
+    highlighterPromise = new Promise((resolve) => {
+        const script = document.createElement("script");
+        script.src = "https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/build/highlight.min.js";
+        script.async = true;
+        script.onload = () => resolve(Boolean(window.hljs));
+        script.onerror = () => resolve(false);
+        document.head.appendChild(script);
+    });
+    return highlighterPromise;
+}
+
+function highlightCode(content) {
+    if (!content.querySelector("pre code")) return;
+    const applyHighlighting = () => {
+        if (!window.hljs) return;
+        content.querySelectorAll("pre code").forEach((element) => window.hljs.highlightElement(element));
+    };
+    if (window.hljs) applyHighlighting();
+    else ensureHighlighter().then(applyHighlighting);
+}
+
+function setContentHtml(content, html) {
+    content.innerHTML = html;
+    content.setAttribute("aria-busy", "false");
+    content.classList.remove("content-enter");
+    content.scrollTop = 0;
+    window.scrollTo(0, 0);
+    requestAnimationFrame(() => content.classList.add("content-enter"));
+}
+
 async function loadNote(path, anchor = "") {
-    const content = document.getElementById("content");
-    content.innerHTML = "<p>Chargement…</p>";
+    const content = $content || document.getElementById("content");
+    const noteTitle = path.split("/").pop().replace(/\.md$/i, "");
+    document.title = `${noteTitle} — Notes`;
+    content.setAttribute("aria-busy", "true");
+    content.classList.remove("content-enter");
+    content.scrollTop = 0;
+    window.scrollTo(0, 0);
+    content.innerHTML = '<p class="loading-state"><span class="loading-spinner" aria-hidden="true"></span>Ouverture de la note…</p>';
 
     const e = extOf(path);
 
@@ -1130,14 +1289,14 @@ async function loadNote(path, anchor = "") {
         if (e === ".pdf") {
             const src = rawUrl(path);
             const viewerUrl = `${src}#toolbar=1&view=FitH`; // hint pour activer la barre d’outils du viewer natif
-            content.innerHTML = `
+            setContentHtml(content, `
                 <h2>${escapeHtml(path.split("/").pop())}</h2>
                 <iframe
                   src="${viewerUrl}"
-                  style="width:100%;height:80vh;border:1px solid var(--border);border-radius:.5rem;background:var(--panel);"
+                  title="Aperçu de ${escapeHtml(path.split("/").pop())}"
                 ></iframe>
                 <p><a href="${src}" target="_blank" rel="noopener">Ouvrir dans un nouvel onglet ↗</a></p>
-              `;
+              `);
             markActive(path);
             return;
         }
@@ -1145,11 +1304,11 @@ async function loadNote(path, anchor = "") {
         // Images
         if ([".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp"].includes(e)) {
             const src = rawUrl(path);
-            content.innerHTML = `
+            setContentHtml(content, `
         <h2>${escapeHtml(path.split("/").pop())}</h2>
-        <img src="${src}" alt="${escapeHtml(path)}" style="max-width:100%;height:auto;border:1px solid var(--border);border-radius:.5rem;background:var(--panel);" />
+        <img src="${src}" alt="${escapeHtml(path)}" />
         <p><a href="${src}" target="_blank" rel="noopener">Voir l’image originale ↗</a></p>
-      `;
+      `);
             markActive(path);
             return;
         }
@@ -1157,17 +1316,15 @@ async function loadNote(path, anchor = "") {
         // Fichiers texte (md/txt/json/csv/log)
         const res = await fetch(rawUrl(path));
         if (!res.ok) {
-            content.innerHTML = `<p>Erreur de chargement : ${res.status} ${res.statusText}</p>`;
+            setContentHtml(content, `<section class="load-error"><h2>Cette note ne peut pas être ouverte.</h2><p>Le serveur a répondu ${res.status} ${escapeHtml(res.statusText)}. Réessayez dans quelques instants.</p></section>`);
             return;
         }
         const text = await res.text();
 
         // Markdown
         if (e === ".md") {
-            content.innerHTML = renderMarkdown(text, path);
-            if (window.hljs) {
-                content.querySelectorAll("pre code").forEach((el) => hljs.highlightElement(el));
-            }
+            setContentHtml(content, renderMarkdown(text, path));
+            highlightCode(content);
             if (anchor) {
                 const escaped = typeof CSS !== "undefined" && CSS.escape ? CSS.escape(anchor) : anchor;
                 const targetEl = content.querySelector(`#${escaped}`);
@@ -1179,26 +1336,25 @@ async function loadNote(path, anchor = "") {
 
         // Texte brut
         if ([".txt", ".json", ".csv", ".log"].includes(e)) {
-            content.innerHTML = `
+            setContentHtml(content, `
         <h2>${escapeHtml(path.split("/").pop())}</h2>
         <pre><code>${escapeHtml(text)}</code></pre>
-      `;
-            if (window.hljs) {
-                content.querySelectorAll("pre code").forEach((el) => hljs.highlightElement(el));
-            }
+      `);
+            highlightCode(content);
             markActive(path);
             return;
         }
 
         // Autres types : fallback download
         const url = rawUrl(path);
-        content.innerHTML = `
+        setContentHtml(content, `
       <h2>${escapeHtml(path.split("/").pop())}</h2>
       <p>Type non géré pour l’aperçu. <a href="${url}" target="_blank" rel="noopener">Télécharger / ouvrir le fichier ↗</a></p>
-    `;
+    `);
         markActive(path);
     } catch (e) {
-        content.innerHTML = `<p>Erreur de chargement : ${e.message}</p>`;
+        setContentHtml(content, `<section class="load-error"><h2>Impossible de charger cette note.</h2><p>${escapeHtml(e.message || "La connexion a été interrompue.")}</p><button class="button-primary retry-load" type="button">Réessayer</button></section>`);
+        content.querySelector(".retry-load")?.addEventListener("click", () => loadNote(path, anchor));
     }
 }
 
@@ -1206,6 +1362,15 @@ async function loadNote(path, anchor = "") {
 // ======================
 //  ROUTER
 // ======================
+function showWelcome() {
+    if (!$content) return;
+    document.title = "Notes — une bibliothèque vivante";
+    setContentHtml($content, HOME_CONTENT);
+    setupWelcomeActions();
+    updateLibraryStats();
+    markActive("");
+}
+
 function router() {
     const hash = decodeURIComponent(location.hash || "");
     if (hash.startsWith("#/")) {
@@ -1217,6 +1382,8 @@ function router() {
             closeSidebarOnMobile();
             loadNote(path, anchor);
         }
+    } else {
+        showWelcome();
     }
 }
 

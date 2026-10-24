@@ -2,47 +2,165 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Notes Obsidian — Vue web</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Une bibliothèque personnelle de notes techniques, de ressources et de projets, organisée avec Obsidian." />
+  <meta name="application-name" content="Notes" />
+  <meta name="theme-color" content="#f6f3eb" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="canonical" href="https://steve57000.github.io/prise-de-notes/" />
 
-  <!-- Marked.js (Markdown -> HTML) -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <!-- Highlight.js (mise en forme du code) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/default.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/build/highlight.min.js"></script>
-  <script defer src="app.js?v=f4b7f254a0041e92c813842e4bc0b203c8aabd38"></script>
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:site_name" content="Notes" />
+  <meta property="og:title" content="Notes — une bibliothèque vivante" />
+  <meta property="og:description" content="Notes techniques, ressources et projets : un espace clair pour retrouver ses idées et apprendre." />
+  <meta property="og:url" content="https://steve57000.github.io/prise-de-notes/" />
+  <meta property="og:image" content="https://steve57000.github.io/prise-de-notes/social-preview.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Notes — une bibliothèque personnelle de connaissances, sur un fond crème et vert sauge." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Notes — une bibliothèque vivante" />
+  <meta name="twitter:description" content="Notes techniques, ressources et projets : un espace clair pour retrouver ses idées et apprendre." />
+  <meta name="twitter:image" content="https://steve57000.github.io/prise-de-notes/social-preview.png" />
+  <meta name="twitter:image:alt" content="Notes — une bibliothèque personnelle de connaissances, sur un fond crème et vert sauge." />
+
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="./favicon-32x32.png" type="image/png" sizes="32x32" />
+  <link rel="icon" href="./favicon-16x16.png" type="image/png" sizes="16x16" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+  <link rel="manifest" href="./site.webmanifest" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://api.github.com" />
+  <script>
+    try {
+      const savedTheme = localStorage.getItem("notes-viewer-theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
+        document.documentElement.dataset.theme = "dark";
+        document.querySelector('meta[name="theme-color"]').content = "#141d19";
+      }
+    } catch {}
+  </script>
+  <link rel="stylesheet" href="style.css?v=20261024" />
+  <title>Notes — une bibliothèque vivante</title>
+
+  <!-- Les scripts différés gardent l’interface réactive pendant le chargement. -->
+  <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script defer src="app.js?v=20261024"></script>
 </head>
 <body>
   <header class="topbar">
     <div class="topbar-left">
-      <button id="menuToggle" class="icon-button" type="button" aria-label="Ouvrir la navigation">
-        ☰
+      <button id="menuToggle" class="icon-button menu-toggle" type="button" aria-label="Ouvrir la navigation" aria-controls="sidebar" aria-expanded="false" title="Ouvrir la navigation">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
       </button>
-      <div class="brand">🧠 Notes</div>
+      <button id="homeButton" class="brand" type="button" aria-label="Retour à l’accueil" title="Retour à l’accueil">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40"><path d="M8 11.5c4.1-.8 8.1 0 12 2.8v17c-3.9-2.8-7.9-3.6-12-2.8z" /><path d="M32 11.5c-4.1-.8-8.1 0-12 2.8v17c3.9-2.8 7.9-3.6 12-2.8z" /><path d="M12 17c2.3-.1 4.2.5 6 1.7M28 17c-2.3-.1-4.2.5-6 1.7" /></svg>
+        </span>
+        <span class="brand-copy"><strong>Notes</strong><small>Un espace pour apprendre</small></span>
+      </button>
     </div>
-    <input id="search" type="search" placeholder="Rechercher…" aria-label="Rechercher une note" />
+
+    <label class="search-field" for="search">
+      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 4.2 4.2" /></svg>
+      <input id="search" type="search" placeholder="Rechercher une note…" aria-label="Rechercher dans les notes" aria-keyshortcuts="Control+K Meta+K" autocomplete="off" spellcheck="false" />
+      <kbd class="shortcut" data-shortcut>Ctrl K</kbd>
+    </label>
+
     <div class="topbar-actions">
-      <button id="themeToggle" class="icon-button" type="button" aria-label="Activer le thème clair" title="Basculer le thème">
-        🌙
+      <button id="themeToggle" class="icon-button theme-toggle" type="button" aria-label="Activer le thème sombre" title="Basculer le thème">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.1 15.3A8.2 8.2 0 0 1 8.7 3.9 8.3 8.3 0 1 0 20.1 15.3Z" /></svg>
       </button>
     </div>
   </header>
-  <div id="overlay" class="overlay" hidden></div>
+
+  <div id="overlay" class="overlay" hidden aria-hidden="true"></div>
 
   <main class="layout">
-    <nav id="sidebar" aria-label="Navigation des notes">
-      <ul id="fileList" class="tree" role="tree"></ul>
+    <nav id="sidebar" class="sidebar" aria-label="Bibliothèque de notes">
+      <div class="sidebar-heading">
+        <div>
+          <p class="sidebar-kicker">VOTRE ESPACE</p>
+          <h2>Bibliothèque</h2>
+        </div>
+        <div class="sidebar-tools">
+          <span id="libraryCount" class="count-pill" aria-label="Nombre de notes">…</span>
+          <button id="sidebarClose" class="icon-button sidebar-close" type="button" aria-label="Fermer la navigation" title="Fermer la navigation">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+          </button>
+        </div>
+      </div>
+      <p class="sidebar-intro">Explorez vos sujets et vos projets.</p>
+      <p id="searchFeedback" class="search-feedback" role="status" aria-live="polite" hidden></p>
+      <ul id="fileList" class="tree"></ul>
+      <p class="sidebar-hint"><span class="hint-dot" aria-hidden="true"></span>Une note vous attend ? <kbd data-shortcut>Ctrl K</kbd></p>
     </nav>
-    <article id="content" class="content" aria-live="polite">
-      <h1>Bienvenue 👋</h1>
-      <p>Sélectionne une note dans la colonne de gauche.</p>
+
+    <article id="content" class="content" aria-live="polite" aria-busy="false">
+      <section class="welcome" aria-labelledby="welcomeTitle">
+        <div class="welcome-copy">
+          <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>NOTES, IDÉES &amp; PROJETS</p>
+          <h1 id="welcomeTitle">Apprendre, comprendre <em>et retrouver.</em></h1>
+          <p class="welcome-description">Une bibliothèque vivante pour retrouver vos notes techniques, suivre vos projets et faire avancer vos idées.</p>
+
+          <div class="welcome-actions">
+            <button id="welcomeSearch" class="button-primary" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 4.2 4.2" /></svg>
+              <span>Rechercher une note</span>
+              <kbd data-shortcut>Ctrl K</kbd>
+            </button>
+            <button id="welcomeBrowse" class="button-quiet" type="button">
+              Explorer la bibliothèque
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+            </button>
+          </div>
+
+          <div class="welcome-stats" aria-label="Contenu de la bibliothèque">
+            <div class="stat"><strong id="noteCount">—</strong><span>notes disponibles</span></div>
+            <span class="stat-divider" aria-hidden="true"></span>
+            <div class="stat"><strong id="sectionCount">—</strong><span>dossiers à explorer</span></div>
+          </div>
+        </div>
+
+        <div class="welcome-art" aria-hidden="true">
+          <div class="art-halo"></div>
+          <div class="art-spark spark-one">✦</div>
+          <div class="art-spark spark-two">✳</div>
+          <div class="note-card note-card-back">
+            <div class="card-topline"><span class="card-label">EN COURS</span><span class="card-dot-row"><i></i><i></i><i></i></span></div>
+            <div class="back-card-lines"><i></i><i></i><i></i><i></i><i></i></div>
+            <span class="back-card-sticker">À relire</span>
+          </div>
+          <div class="note-card note-card-front">
+            <div class="card-topline"><span class="card-label"><span class="card-mark"></span>MON CARNET</span><span class="card-star">✦</span></div>
+            <h2>Les idées grandissent quand on les garde.</h2>
+            <div class="art-note-row"><span class="art-note-icon icon-green">⌘</span><span><b>Machine learning</b><small>Comprendre les modèles</small></span><i class="row-arrow">↗</i></div>
+            <div class="art-note-row"><span class="art-note-icon icon-peach">↗</span><span><b>Analyse de données</b><small>Projets &amp; méthodes</small></span><i class="row-arrow">↗</i></div>
+            <div class="card-bottom"><span>Une idée à la fois.</span><span class="card-line"></span></div>
+          </div>
+          <div class="art-sticker"><span>✦</span><small>curiosité<br />en action</small></div>
+        </div>
+      </section>
+
+      <div class="welcome-note">
+        <span class="welcome-note-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 1 4 17.5z" /><path d="M4 17.5A2.5 2.5 0 0 1 6.5 15H20M8 7h8M8 10h6" /></svg>
+        </span>
+        <p>Tout est organisé pour être retrouvé facilement. Ouvrez un dossier, ou lancez une recherche pour commencer.</p>
+      </div>
     </article>
   </main>
 
   <footer class="foot">
-    Rendu statique depuis GitHub • <a id="repoLink" href="#" target="_blank" rel="noopener">Voir le dépôt</a>
+    <span><span class="footer-dot" aria-hidden="true"></span>Un carnet de connaissances, construit au fil du temps.</span>
+    <a id="repoLink" href="https://github.com/steve57000/prise-de-notes" target="_blank" rel="noopener noreferrer">
+      Voir le dépôt
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6m0-6-9 9" /><path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" /></svg>
+    </a>
   </footer>
-
 </body>
 </html>
