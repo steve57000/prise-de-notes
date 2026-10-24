@@ -16,6 +16,108 @@ Les prérequis recommandés sont les bibliothèques Python de Data Science, quel
 - [Cours OpenClassrooms — bibliothèques Python pour la Data Science](https://openclassrooms.com/fr/courses/7771531-decouvrez-les-librairies-python-pour-la-data-science)
 - [Documentation officielle scikit-learn](https://scikit-learn.org/stable/)
 
+## Synthèse du cours, leçon par leçon
+
+Cette synthèse reformule les notions à retenir pour pouvoir les retrouver et les réutiliser. Les liens du parcours plus bas donnent accès aux leçons complètes et aux quatre quiz ; les quiz restent à faire sur OpenClassrooms pour vérifier les acquis.
+
+### Partie 1 — Découvrez les grands principes du Machine Learning
+
+#### 1. [Tirez un maximum de ce cours](https://openclassrooms.com/fr/courses/8063076-initiez-vous-au-machine-learning/8296611-tirez-un-maximum-de-ce-cours)
+
+Le cours progresse des principes généraux vers les modèles, la préparation des données et l’amélioration des performances. Il est conçu pour être suivi avec de la pratique : refaire les manipulations dans un notebook et utiliser les quiz pour vérifier les notions. Les bases de Python pour la Data Science, des statistiques et de l’algèbre linéaire facilitent la progression.
+
+#### 2. [Abordez le domaine d’application du Machine Learning](https://openclassrooms.com/fr/courses/8063076-initiez-vous-au-machine-learning/8296925-abordez-le-domaine-d-application-du-machine-learning)
+
+- La modélisation statistique cherche surtout à analyser ou expliquer des relations ; le Machine Learning présenté ici vise surtout à faire des prédictions qui généralisent à de nouveaux exemples.
+- Dans un tableau, les lignes sont les échantillons, les colonnes les variables. En supervisé, on distingue les variables prédictives de la cible ; en non supervisé, il n’y a pas de cible fournie.
+- Une cible continue appelle une **régression** ; une cible catégorielle, une **classification** ; la recherche de groupes sans étiquettes, un **clustering**.
+- Le développement alterne préparation des données, validation et optimisation. Le jeu de test doit représenter des données que le modèle n’a pas vues.
+
+#### 3. [Découvrez les notions de modèle et d’algorithme](https://openclassrooms.com/fr/courses/8063076-initiez-vous-au-machine-learning/8297197-decouvrez-les-notions-de-modele-et-d-algorithme)
+
+- Un algorithme est une suite d’opérations qui ajuste progressivement une estimation pour réduire une erreur, mesurée par une fonction de coût.
+- Dans scikit-learn, la classe décrit une famille de modèles ; après instanciation et entraînement avec `fit(X, y)`, l’objet contient les paramètres appris et peut produire des prédictions.
+- Les familles évoquées incluent les modèles linéaires, les arbres et les réseaux de neurones. Le gradient stochastique illustre l’apprentissage itératif ; le taux d’apprentissage règle l’ampleur des mises à jour et peut empêcher la convergence s’il est trop élevé.
+
+#### 4. [Passez d’une problématique business à la mise en production](https://openclassrooms.com/fr/courses/8063076-initiez-vous-au-machine-learning/8297367-passez-d-une-problematique-business-a-la-mise-en-production)
+
+- Le projet commence par une question d’usage, des données pertinentes et un critère de succès. Comparer le Machine Learning à une règle simple fournit un benchmark et aide à vérifier que la complexité apporte une valeur réelle.
+- Le prototype prépare les données, choisit un modèle, sépare entraînement et validation, puis optimise les paramètres. Ces étapes sont itératives.
+- La production demande le déploiement, le suivi et parfois le réentraînement. Les données évoluent : un **drift** peut dégrader les performances ; les pratiques MLOps automatisent notamment les mises à jour, déploiements et contrôles.
+
+### Partie 2 — Manipulez les fonctions de base d’un modèle prédictif
+
+#### 5. [Évaluez la performance d’un modèle prédictif](https://openclassrooms.com/fr/courses/8063076-initiez-vous-au-machine-learning/8297644-evaluez-la-performance-d-un-modele-predictif)
+
+- La fonction de coût guide l’apprentissage ; une métrique de performance sert à comparer les prédictions aux valeurs réelles. Il faut choisir cette métrique selon la tâche et l’usage.
+- En régression, la MAE et la RMSE sont des erreurs (plus petites = mieux) ; le R² est généralement meilleur quand il se rapproche de 1. La MAPE exprime une erreur relative, mais demande de la prudence lorsque les valeurs cibles sont nulles ou proches de zéro.
+- Le score d’entraînement ne suffit pas : évaluer sur des données tenues à l’écart donne une indication de généralisation. La classification et le clustering ont leurs propres métriques.
+- Démarche de base : charger, transformer, séparer, entraîner, prédire, calculer le score, puis recommencer en justifiant chaque modification.
+
+#### 6. [Découvrez le principe de la régression linéaire](https://openclassrooms.com/fr/courses/8063076-initiez-vous-au-machine-learning/8298139-decouvrez-le-principe-de-la-regression-lineaire)
+
+- La régression linéaire estime une cible continue comme une combinaison pondérée des variables prédictives et d’une erreur résiduelle.
+- Comparer des métriques sur le jeu de test, comme RMSE et MAPE, permet de mesurer la qualité des estimations ; les coefficients dépendent des unités et de l’échelle des variables.
+- Examiner les graphiques aide à vérifier si une relation linéaire est plausible. Des termes polynomiaux ou des interactions peuvent représenter une courbure, mais augmentent la complexité et le risque de surapprentissage.
+- Le découpage et le paramètre `random_state` influencent les résultats ; fixer la graine rend une expérience reproductible, tandis qu’une validation croisée donne une comparaison moins dépendante d’un unique découpage.
+
+#### 7. [Classifiez les données avec la régression logistique](https://openclassrooms.com/fr/courses/8063076-initiez-vous-au-machine-learning/8298609-classifiez-les-donnees-avec-la-regression-logistique)
+
+- Malgré son nom, la régression logistique sert à la classification : elle transforme une combinaison de variables en probabilité de classe, puis un seuil transforme cette probabilité en étiquette.
+- La matrice de confusion compte les vrais/faux positifs et vrais/faux négatifs. La précision pénalise surtout les faux positifs ; le rappel mesure la capacité à retrouver les positifs.
+- En cas de classes déséquilibrées, l’accuracy peut sembler élevée même si la classe rare n’est jamais détectée. Choisir les métriques selon le coût des erreurs et ajuster le seuil en conséquence.
+- La courbe ROC et son AUC évaluent le classement sur plusieurs seuils ; elles complètent la matrice de confusion et les métriques au seuil retenu.
+
+#### 8. [Partitionnez les données avec k-means](https://openclassrooms.com/fr/courses/8063076-initiez-vous-au-machine-learning/8298902-partitionnez-les-donnees-avec-k-means)
+
+- K-means attribue les observations à `K` groupes et met à jour leurs centroïdes de façon itérative pour rapprocher les points de leur centre.
+- Le choix de `K` fait partie du problème. Le score de silhouette aide à comparer plusieurs valeurs : il favorise des groupes compacts et séparés.
+- Comme l’algorithme s’appuie sur des distances, les échelles des variables comptent ; standardiser peut être nécessaire. Les identifiants de groupes sont arbitraires : il faut interpréter les clusters dans le contexte métier.
+- Un clustering peut ressembler à une classification si l’on possède des étiquettes de référence, mais il n’apprend pas ces étiquettes.
+
+### Partie 3 — Transformez vos jeux de données
+
+#### 9. [Comprenez le rôle central du jeu de données](https://openclassrooms.com/fr/courses/8063076-initiez-vous-au-machine-learning/8299062-comprenez-le-role-central-du-jeu-de-donnees)
+
+- La performance dépend fortement des données et du signal qu’elles contiennent. Des exemples synthétiques permettent de tester ce qu’un modèle peut apprendre, par exemple quand la séparation entre classes est linéaire ou non.
+- Un échantillonnage non représentatif et des catégories sous-représentées peuvent produire des biais systématiques. Vérifier quelles populations et situations les données couvrent, puis documenter les limites.
+- Le chapitre insiste sur le fait qu’un modèle peut reproduire des préjugés présents dans les données ; contrôler les résultats par sous-groupes fait partie de l’analyse, pas seulement de l’optimisation du score.
+
+#### 10. [Améliorez un jeu de données](https://openclassrooms.com/fr/courses/8063076-initiez-vous-au-machine-learning/8299343-ameliorez-un-jeu-de-donnees)
+
+- Traiter les valeurs manquantes demande de comprendre pourquoi elles manquent et de choisir une imputation cohérente avec le contexte ; supprimer les lignes n’est pas toujours approprié.
+- Un outlier peut être une erreur ou une observation rare mais réelle. Le repérer avec un histogramme, un boxplot, un z-score ou la règle IQR, puis vérifier le sens métier avant de le supprimer, plafonner ou transformer.
+- Pour réduire l’effet d’échelle ou d’asymétrie, choisir selon le besoin entre normalisation Min-Max, standardisation par z-score, transformation logarithmique ou discrétisation.
+- Dans un pipeline prédictif, apprendre les paramètres d’imputation et de mise à l’échelle sur l’entraînement seulement, puis appliquer ces paramètres à validation et test.
+
+#### 11. [Transformez les variables pour faciliter l’apprentissage du modèle](https://openclassrooms.com/fr/courses/8063076-initiez-vous-au-machine-learning/8299647-transformez-les-variables-pour-faciliter-l-apprentissage-du-modele)
+
+- Les modèles attendent généralement des entrées numériques. L’encodage ordinal est compact mais introduit un ordre artificiel si les catégories n’en ont pas ; le one-hot évite cet ordre mais crée une colonne par catégorie.
+- Pour les variables à forte cardinalité, un encodage plus compact, comme le binaire, peut réduire le nombre de colonnes ; il faut choisir une représentation adaptée au modèle et aux données.
+- Le feature engineering crée ou transforme des variables à partir d’une connaissance du domaine : intervalles, puissances, logarithmes, indicateurs de valeurs manquantes ou combinaisons de colonnes.
+- Comparer les transformations dans une validation rigoureuse : toute transformation apprise à partir des données doit être ajustée sur l’entraînement pour éviter la fuite de données.
+
+### Partie 4 — Optimisez les performances d’un modèle
+
+#### 12. [Améliorez le modèle](https://openclassrooms.com/fr/courses/8063076-initiez-vous-au-machine-learning/8299917-ameliorez-le-modele)
+
+- Comparer les scores entraînement et test permet de diagnostiquer le compromis biais-variance : scores faibles des deux côtés = sous-apprentissage ; très bon score d’entraînement mais score test inférieur = surapprentissage.
+- Ajuster les paramètres de complexité (par exemple la profondeur d’un arbre), ajouter des données ou revoir les variables peut améliorer la généralisation.
+- La meilleure configuration est celle qui fonctionne bien sur des données non vues, pas celle qui maximise seulement le score d’entraînement.
+
+#### 13. [Augmentez la robustesse de vos modèles](https://openclassrooms.com/fr/courses/8063076-initiez-vous-au-machine-learning/8300129-augmentez-la-robustesse-de-vos-modeles)
+
+- La régularisation pénalise la complexité pour éviter que le modèle colle trop aux observations d’entraînement. Ridge correspond à une pénalisation L2 ; Lasso à une pénalisation L1. Les arbres se régularisent notamment en limitant leur profondeur.
+- La validation croisée divise les données d’entraînement en plis successifs, entraîne sur certains plis et valide sur le pli laissé de côté. La moyenne des scores donne une comparaison plus stable.
+- `GridSearchCV` explore les combinaisons de paramètres avec validation croisée. Une recherche large peut coûter cher ; limiter les paramètres testés et réserver le jeu test final à l’évaluation finale.
+
+#### 14. [Découvrez l’apprentissage d’ensemble avec les forêts aléatoires](https://openclassrooms.com/fr/courses/8063076-initiez-vous-au-machine-learning/8300349-decouvrez-l-apprentissage-d-ensemble-avec-les-forets-aleatoires)
+
+- Une forêt aléatoire entraîne de nombreux arbres en parallèle sur des échantillons et sous-ensembles de variables, puis agrège leurs prédictions. Cette approche réduit souvent la variance d’un arbre seul ; profondeur et nombre de variables par arbre contrôlent sa complexité.
+- Le Gradient Boosting construit les arbres séquentiellement, chaque étape se concentrant sur les erreurs précédentes. Le taux d’apprentissage influence la vitesse et la qualité de convergence ; ces modèles demandent un réglage attentif.
+- Commencer par une régression simple établit un benchmark. Comparer ensuite forêt aléatoire et boosting selon la métrique utile, la stabilité et les contraintes du problème.
+- L’importance des variables renseigne sur les associations exploitées par un modèle ; elle ne démontre pas qu’une variable cause la cible.
+
 ## Repérer le type de problème
 
 Commencer par formuler la question à laquelle la prédiction doit répondre et la décision qui utilisera le résultat. Le choix du modèle dépend de la cible et de l’usage.
